@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Kurdish Ultra TV - پەخشی ڕاستەوخۆی کەنالەکانی کوردی">
+<title>Kurdish Ultra TV</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#0d0d0d;--bg2:#181818;--bg3:#222;--card:#1a1a1a;
+--tx:#e8e8e8;--tx2:#999;--tm:#666;
+--ac:#e63946;--ac2:#ff6b6b;--acg:#2ecc71;
+--rad:12px;--shadow:0 2px 12px rgba(0,0,0,.4);
+--safe-b:env(safe-area-inset-bottom,0px)
+}
+[data-theme="light"]{
+--bg:#f5f5f5;--bg2:#fff;--bg3:#e8e8e8;--card:#fff;
+--tx:#1a1a1a;--tx2:#666;--tm:#999;
+--shadow:0 2px 12px rgba(0,0,0,.08)
+}
+html,body{height:100%;overflow-x:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5;scroll-behavior:smooth}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--tm);border-radius:4px}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;align-items:center;background:var(--bg2);border-top:1px solid var(--bg3);padding:6px 0 calc(6px + var(--safe-b));z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.nav button{background:none;border:none;color:var(--tx2);font-size:20px;padding:6px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s}
+.nav button span{font-size:9px;letter-spacing:.5px}
+.nav button.on{color:var(--ac)}
+
+/* PAGES */
+.page{display:none;padding:12px 12px calc(70px + var(--safe-b));min-height:100vh}
+.page.show{display:block}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px}
+.hdr h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:6px}
+.hdr-actions{display:flex;gap:8px}
+.hdr-actions button{background:var(--bg3);border:none;color:var(--tx);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+
+/* LANG PILLS */
+.lang-bar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.lang-bar::-webkit-scrollbar{display:none}
+.lang-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--bg3);background:transparent;color:var(--tx2);font-size:12px;white-space:nowrap;cursor:pointer;transition:all .2s}
+.lang-pill.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* VIDEO */
+.vc{position:relative;width:100%;border-radius:var(--rad);overflow:hidden;background:#000;aspect-ratio:16/9}
+.vc video{width:100%;height:100%;object-fit:contain;background:#000}
+.voverlay{position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:5;opacity:0;transition:opacity .3s}
+.vc:hover .voverlay,.vc:focus-within .voverlay{opacity:1}
+.vob{background:rgba(0,0,0,.6);color:#fff;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px;backdrop-filter:blur(4px)}
+.ve{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);color:#fff;text-align:center;padding:20px;gap:6px}
+.ve .ei{font-size:36px}
+.live-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.live-badge.on{background:var(--ac);color:#fff}
+.live-badge.off{background:var(--tm);color:#ccc}
+
+/* CHANNEL INFO */
+.ci{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bg3)}
+.cl{width:44px;height:44px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg3)}
+.cl img{width:100%;height:100%;object-fit:cover}
+.cnw{font-size:10px;color:var(--tx2)}
+.cn{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.cc{font-size:11px;color:var(--tx2)}
+.ci-actions{display:flex;gap:8px;margin-inline-start:auto}
+.ci-actions button{background:none;border:none;font-size:20px;cursor:pointer;padding:4px}
+.fav-btn{transition:transform .2s}
+.fav-btn:active{transform:scale(1.3)}
+
+/* QUALITY SELECTOR */
+.quality-bar{display:flex;align-items:center;gap:8px;padding:8px 0}
+.quality-bar span{font-size:11px;color:var(--tx2)}
+.q-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--bg3);background:transparent;color:var(--tx2);font-size:11px;cursor:pointer;transition:all .2s}
+.q-btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* CATS */
+.cats{display:flex;gap:6px;overflow-x:auto;padding:8px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{padding:6px 14px;border-radius:20px;background:var(--bg3);color:var(--tx2);font-size:12px;white-space:nowrap;cursor:pointer;border:none;transition:all .2s}
+.cat.on{background:var(--ac);color:#fff}
+
+/* CHANNEL LIST */
+.chl{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--ch-size,72px),1fr));gap:8px;padding:8px 0}
+.ch{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:var(--rad);background:var(--card);cursor:pointer;border:2px solid transparent;transition:all .15s;position:relative;contain:layout style paint}
+.ch:active{transform:scale(.95)}
+.ch.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.ch img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--bg3);loading:lazy}
+.ch .ch-name{font-size:10px;text-align:center;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;line-height:1.2}
+.ch .ch-status{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--acg)}
+
+/* SEARCH */
+.search-wrap{position:relative;margin:8px 0}
+.search-wrap input{width:100%;padding:10px 14px 10px 36px;border-radius:var(--rad);border:1px solid var(--bg3);background:var(--bg2);color:var(--tx);font-size:14px;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--ac)}
+.search-wrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tx2);font-size:14px;pointer-events:none}
+
+/* SIZE BAR */
+.size-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
+.size-lbl{font-size:11px;color:var(--tx2);white-space:nowrap}
+.size-slider{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--bg3);border-radius:4px;outline:none}
+.size-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--ac);cursor:pointer}
+.size-btn{background:var(--bg3);border:none;color:var(--tx);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.size-val{font-size:11px;color:var(--tx2);min-width:24px;text-align:center}
+
+/* SORT */
+.sort-bar{display:flex;align-items:center;gap:6px;padding:4px 0}
+.sort-lbl{font-size:11px;color:var(--tx2)}
+.sort-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--bg3);background:transparent;color:var(--tx2);font-size:11px;cursor:pointer}
+.sort-btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+
+/* FAVS SECTION */
+.fav-section{padding:12px 0}
+.fav-hdr{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer;padding:8px 0}
+.fav-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+
+/* ADD CHANNEL */
+.as{margin:12px 0;border-radius:var(--rad);overflow:hidden;background:var(--card)}
+.ah{display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer}
+.aht{font-size:13px;font-weight:600}
+.af{padding:0 12px 12px}
+.af textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg2);color:var(--tx);font-size:12px;resize:vertical;font-family:inherit}
+.af label{font-size:11px;color:var(--tx2);margin-bottom:4px;display:block}
+.badd{width:100%;padding:10px;border-radius:8px;background:var(--ac);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px}
+
+/* MY CHANNELS */
+.my-sec{padding:12px 0}
+.my-hdr{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.my-hdr span:first-child{font-size:14px;font-weight:600}
+.my-clear{font-size:11px;color:var(--ac);cursor:pointer}
+.my-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+
+/* SETTINGS */
+.s-group{background:var(--card);border-radius:var(--rad);margin-bottom:12px;overflow:hidden}
+.s-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--bg3)}
+.s-item:last-child{border-bottom:none}
+.s-item label{font-size:13px;display:flex;align-items:center;gap:8px}
+.s-item label .ico{font-size:18px}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--bg3);border:none;cursor:pointer;position:relative;transition:background .2s}
+.toggle.on{background:var(--acg)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(20px)}
+
+/* LOADING */
+.dots{display:flex;gap:6px;justify-content:center;padding:20px}
+.dots span{width:8px;height:8px;border-radius:50%;background:var(--ac);animation:dot .8s infinite alternate}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{to{opacity:.2;transform:scale(.6)}}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--tx2)}
+.empty .eico{font-size:48px;margin-bottom:8px}
+
+/* SHARE MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--bg2);border-radius:16px 16px 0 0;width:100%;max-width:420px;padding:20px;padding-bottom:calc(20px + var(--safe-b));animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}}
+.modal h3{font-size:15px;margin-bottom:12px;text-align:center}
+.modal-close{background:var(--bg3);border:none;color:var(--tx);width:100%;padding:10px;border-radius:8px;margin-top:12px;font-size:13px;cursor:pointer}
+.share-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.share-opt{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none;border:none;color:var(--tx)}
+.share-opt .sico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.share-opt span{font-size:10px;color:var(--tx2)}
+</style>
+</head>
+<body>
+
+<!-- PAGE: HOME / LIVE TV -->
+<div class="page show" id="pgHome">
+  <div class="hdr">
+    <h1>📺 Kurdish Ultra TV</h1>
+    <div class="hdr-actions">
+      <button onclick="toggleTheme()" id="themeBtn" title="Dark/Light">🌙</button>
+    </div>
+  </div>
+
+  <div class="lang-bar" id="langBar">
+    <button class="lang-pill on" data-lang="ku" onclick="setLang('ku')">کوردی</button>
+    <button class="lang-pill" data-lang="ar" onclick="setLang('ar')">عربی</button>
+    <button class="lang-pill" data-lang="en" onclick="setLang('en')">English</button>
+  </div>
+
+  <!-- VIDEO PLAYER -->
+  <div class="vc" id="vcWrap">
+    <div class="voverlay">
+      <button class="vob" onclick="openPiP()">⧉ PiP</button>
+      <button class="vob" onclick="goFullscreen()">⛶</button>
+    </div>
+    <video id="video" controls autoplay playsinline></video>
+    <div id="videoError" class="ve" style="display:none">
+      <div class="ei">⚠️</div>
+      <div id="errMsg"></div>
+      <div style="font-size:11px;color:var(--tm);margin-top:4px" id="errSub"></div>
+    </div>
+  </div>
+
+  <!-- Channel Info -->
+  <div class="ci">
+    <div class="cl"><img id="curLogo" src="" alt="" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659832.png'"></div>
+    <div style="min-width:0;flex:1">
+      <div class="cnw" id="lblNow"></div>
+      <div class="cn" id="curName">—</div>
+      <div class="cc" id="curCat"></div>
+    </div>
+    <div class="ci-actions">
+      <button class="fav-btn" id="favBtn" onclick="toggleFav()" title="Favourite">🤍</button>
+    </div>
+  </div>
+
+  <div class="quality-bar">
+    <span id="lblQuality"></span>
+    <button class="q-btn on" onclick="setQuality('auto')">Auto</button>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="cats" id="catBar"></div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <span class="si">🔍</span>
+    <input type="search" id="searchInput" oninput="filterChannels()" autocomplete="off">
+  </div>
+
+  <!-- SIZE -->
+  <div class="size-bar">
+    <span class="size-lbl" id="lblSize"></span>
+    <button class="size-btn" onclick="adjustSize(-10)">−</button>
+    <input type="range" class="size-slider" id="sizeSlider" min="56" max="120" value="76" oninput="onSizeSlider()">
+    <button class="size-btn" onclick="adjustSize(10)">+</button>
+    <span class="size-val" id="sizeVal">76</span>
+  </div>
+
+  <!-- SORT -->
+  <div class="sort-bar">
+    <span class="sort-lbl" id="lblSort"></span>
+    <button class="sort-btn on" id="sortDefault" onclick="setSort('default')">—</button>
+    <button class="sort-btn" id="sortAZ" onclick="setSort('az')">A→Z</button>
+    <button class="sort-btn" id="sortCountry" onclick="setSort('country')">🌍</button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="dots" id="loadHint"><span>●</span><span>●</span><span>●</span></div>
+
+  <!-- CHANNEL GRID -->
+  <div class="chl" id="chList"></div>
+
+  <!-- FAVOURITES -->
+  <div class="fav-section" id="favSection" style="display:none">
+    <div class="fav-hdr" onclick="toggleFavList()">
+      ⭐ <span id="lblFavs"></span>
+      <span id="favCount"></span>
+    </div>
+    <div class="fav-list" id="favList"></div>
+  </div>
+
+  <!-- ADD CHANNEL -->
+  <div class="as">
+    <div class="ah" onclick="toggleAdd()">
+      <div class="aht">＋ <span id="lblAdd"></span></div>
+      <div id="addIcon" style="transition:transform .2s">+</div>
+    </div>
+    <div id="addForm" style="display:none">
+      <div class="af">
+        <label id="lblPaste"></label>
+        <textarea id="inBulk" rows="4" placeholder="channel name, stream url"></textarea>
+        <button class="badd" onclick="addChannels()" id="btnAdd"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY CHANNELS -->
+  <div class="my-sec" id="mySec" style="display:none">
+    <div class="my-hdr">
+      <span id="lblMy"></span>
+      <span class="my-clear" onclick="clearMyChannels()" id="lblClear"></span>
+    </div>
+    <div class="my-list" id="myList"></div>
+  </div>
+</div>
+
+<!-- PAGE: FAVOURITES -->
+<div class="page" id="pgFavs">
+  <div class="hdr"><h1>❤️ <span id="lblFavPage"></span></h1></div>
+  <div class="chl" id="favPageList"></div>
+  <div class="empty" id="favEmpty"><div class="eico">❤️</div><div id="lblNoFav"></div></div>
+</div>
+
+<!-- PAGE: SETTINGS -->
+<div class="page" id="pgSettings">
+  <div class="hdr"><h1>⚙️ <span id="lblSettings"></span></h1></div>
+  <div class="s-group">
+    <div class="s-item">
+      <label><span class="ico">🌙</span> <span id="lblDark"></span></label>
+      <button class="toggle" id="darkToggle" onclick="toggleTheme()"></button>
+    </div>
+    <div class="s-item">
+      <label><span class="ico">🔔</span> <span id="lblNotif"></span></label>
+      <button class="toggle" id="notifToggle" onclick="toggleNotif()"></button>
+    </div>
+    <div class="s-item">
+      <label><span class="ico">⚡</span> <span id="lblBattery"></span></label>
+      <button class="toggle on" id="batteryToggle" onclick="toggleBattery()"></button>
+    </div>
+  </div>
+  <div class="s-group">
+    <div class="s-item">
+      <label><span class="ico">🌐</span> <span id="lblLang2"></span></label>
+      <select id="langSelect" onchange="setLang(this.value)" style="background:var(--bg3);color:var(--tx);border:none;padding:6px 10px;border-radius:6px;font-size:13px">
+        <option value="ku">کوردی</option>
+        <option value="ar">عربی</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </div>
+  <div style="text-align:center;padding:20px;color:var(--tx2);font-size:11px">
+    Kurdish Ultra TV v2.0<br>
+    © 2025 Ibrahim King<br>
+    <a href="https://t.me/Ebrahimking20" style="color:var(--ac);text-decoration:none">✈️ Telegram</a>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-bg" id="shareModal" onclick="if(event.target===this)closeShare()">
+  <div class="modal">
+    <h3 id="lblShareTitle"></h3>
+    <div class="share-opts">
+      <button class="share-opt" onclick="shareVia('copy')"><div class="sico" style="background:#555">📋</div><span>Copy</span></button>
+      <button class="share-opt" onclick="shareVia('whatsapp')"><div class="sico" style="background:#25d366">💬</div><span>WhatsApp</span></button>
+      <button class="share-opt" onclick="shareVia('telegram')"><div class="sico" style="background:#0088cc">✈️</div><span>Telegram</span></button>
+      <button class="share-opt" onclick="shareVia('twitter')"><div class="sico" style="background:#1da1f2">🐦</div><span>X</span></button>
+    </div>
+    <button class="modal-close" onclick="closeShare()" id="lblClose"></button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="on" onclick="showPage('pgHome',this)" id="navHome"><span>📺</span><span id="lblHome"></span></button>
+  <button onclick="showPage('pgFavs',this)" id="navFavs"><span>❤️</span><span id="lblFav"></span></button>
+  <button onclick="showPage('pgSettings',this)" id="navSettings"><span>⚙️</span><span id="lblSet"></span></button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+<script>
+'use strict';
+
+/* ── i18n ── */
+const T={
+ku:{
+  nowWatching:'ئێستا تەماشا دەکەیت',search:'گەڕان بۆ کەنال...',chSize:'قەبارە',sortBy:'ڕیزکردن',
+  favChannels:'کەنالە دڵخوازەکان',addChannel:'کەنال زیادبکە',pasteList:'لیستی کەنال دابنێ',
+  addBtn:'زیادبکە',myChannels:'کەنالەکانم',clearAll:'سڕینەوەی هەموو',
+  streamUnavail:'ئەم کەنالە بەردەست نییە',channelDead:'تکایە کەنالێکی تر هەڵبژێرە',
+  selectOther:'کەنالێکی تر هەڵبژێرە',shareBtn:'هاوبەش',noDuration:'بێ ماوە',
+  home:'سەرەکی',fav:'دڵخواز',settings:'ڕێکخستنەکان',darkMode:'مۆدی تاریک',
+  notifications:'ئاگادارکردنەوە',batterySave:'پاشەکەوتکردنی وزە',language:'زمان',
+  shareTitle:'هاوبەشکردن',close:'داخستن',favPage:'دڵخوازەکان',noFav:'هێشتا کەنالی دڵخوازت نییە',
+  quality:'کوالیتی',allCat:'هەموو',news:'هەواڵ',entertainment:'فەرفێرە',music:'میوزیک',
+  kids:'منداڵان',sports:'وەرزش',religious:'ئایینی',general:'گشتی',culture:'کولتوور'
+},
+ar:{
+  nowWatching:'تشاهد الآن',search:'بحث عن قناة...',chSize:'الحجم',sortBy:'ترتيب',
+  favChannels:'القنوات المفضلة',addChannel:'إضافة قناة',pasteList:'الصق قائمة القنوات',
+  addBtn:'إضافة',myChannels:'قنواتي',clearAll:'مسح الكل',
+  streamUnavail:'القناة غير متاحة',channelDead:'يرجى اختيار قناة أخرى',
+  selectOther:'اختر قناة أخرى',shareBtn:'مشاركة',noDuration:'بدون مدة',
+  home:'الرئيسية',fav:'المفضلة',settings:'الإعدادات',darkMode:'الوضع الداكن',
+  notifications:'الإشعارات',batterySave:'توفير الطاقة',language:'اللغة',
+  shareTitle:'مشاركة',close:'إغلاق',favPage:'المفضلة',noFav:'لا توجد قنوات مفضلة بعد',
+  quality:'الجودة',allCat:'الكل',news:'أخبار',entertainment:'ترفيه',music:'موسيقى',
+  kids:'أطفال',sports:'رياضة',religious:'دينية',general:'عام',culture:'ثقافة'
+},
+en:{
+  nowWatching:'Now watching',search:'Search channels...',chSize:'Size',sortBy:'Sort by',
+  favChannels:'Favourite Channels',addChannel:'Add Channel',pasteList:'Paste channel list',
+  addBtn:'Add',myChannels:'My Channels',clearAll:'Clear all',
+  streamUnavail:'Stream unavailable',channelDead:'Please select another channel',
+  selectOther:'Select another channel',shareBtn:'Share',noDuration:'No duration',
+  home:'Home',fav:'Favs',settings:'Settings',darkMode:'Dark Mode',
+  notifications:'Notifications',batterySave:'Battery Saver',language:'Language',
+  shareTitle:'Share Channel',close:'Close',favPage:'Favourites',noFav:'No favourites yet',
+  quality:'Quality',allCat:'All',news:'News',entertainment:'Entertainment',music:'Music',
+  kids:'Kids',sports:'Sports',religious:'Religious',general:'General',culture:'Culture'
+}
+};
+
+let lang=localStorage.getItem('kutv_lang')||'ku';
+let theme=localStorage.getItem('kutv_theme')||'dark';
+let batterySave=localStorage.getItem('kutv_battery')!=='false';
+let favs=JSON.parse(localStorage.getItem('kutv_favs')||'[]');
+let myChannels=JSON.parse(localStorage.getItem('kutv_my')||'[]');
+let currentCh=null,currentSort='default',currentCat='all',hls=null;
+let chSize=parseInt(localStorage.getItem('kutv_size')||'76');
+
+/* ── CHANNELS DATABASE ── */
+const channels=[
+// ── KurdMax ──
+{id:'kurdmax-sorani',name:'KurdMax Sorani',nameKu:'کوردماکس سۆرانی',cat:'entertainment',country:'IQ',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Kurdmax_logo.png/220px-Kurdmax_logo.png',url:'https://6476e46b58f91.streamlock.net/liveTrans/KURDS2211/playlist.m3u8'},
+{id:'kurdmax-kurmanci',name:'KurdMax Kurmanci',nameKu:'کوردماکس کورمانجی',cat:'entertainment',country:'IQ',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Kurdmax_logo.png/220px-Kurdmax_logo.png',url:'https://6476e46b58f91.streamlock.net/liveTrans/KURDB3388/playlist.m3u8'},
+{id:'kurdmax-show',name:'KurdMax Show',nameKu:'کوردماکس شۆ',cat:'entertainment',country:'IQ',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Kurdmax_logo.png/220px-Kurdmax_logo.png',url:'https://6476e46b58f91.streamlock.net/liveTrans/SHOWS123/playlist.m3u8'},
+{id:'kurdmax-music',name:'KurdMax Music',nameKu:'کوردماکس میوزیک',cat:'music',country:'IQ',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Kurdmax_logo.png/220px-Kurdmax_logo.png',url:'https://6476e46b58f91.streamlock.net/music/MUSIC2402/playlist.m3u8'},
+{id:'kurdmax-pepule',name:'KurdMax Pepule',nameKu:'کوردماکس پیپوڵ',cat:'entertainment',country:'IQ',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Kurdmax_logo.png/220px-Kurdmax_logo.png',url:'https://6476e46b58f91.streamlock.net/liveTrans/PEP123/playlist.m3u8'},
+
+// ── Kurdistan TV & K24 ──
+{id:'kurdistan-tv',name:'Kurdistan TV',nameKu:'کوردستان تیڤی',cat:'general',country:'IQ',logo:'https://kurdistantv.net/img/logo.png',url:'https://5a3ed7a72ed4b.streamlock.net/live/SMIL:myStream.smil/playlist.m3u8'},
+{id:'kurdistan24',name:'Kurdistan 24',nameKu:'کوردستان ٢٤',cat:'news',country:'IQ',logo:'https://www.kurdistan24.net/assets/k24-logo.png',url:'https://d1x82nydcxndze.cloudfront.net/live/index.m3u8'},
+
+// ── Rudaw ──
+{id:'rudaw',name:'Rudaw TV',nameKu:'ڕووداو',cat:'news',country:'IQ',logo:'https://www.rudaw.net/images/rudaw-logo.png',url:'https://svs.itworkscdn.net/rudawlive/rudawlive.smil/playlist.m3u8'},
+
+// ── NRT ──
+{id:'nrt',name:'NRT TV',nameKu:'ئێن ئار تی',cat:'news',country:'IQ',logo:'https://www.nrttv.com/images/nrt-logo.svg',url:'https://media.streambrothers.com:1936/8226/8226/playlist.m3u8'},
+
+// ── Kurdsat ──
+{id:'kurdsat',name:'Kurdsat',nameKu:'کوردسات',cat:'general',country:'IQ',logo:'https://kurdsat.tv/images/logo.png',url:'https://iko-live.akamaized.net/KurdsatTV/master.m3u8'},
+{id:'kurdsat-news',name:'Kurdsat News',nameKu:'کوردسات نیوز',cat:'news',country:'IQ',logo:'https://kurdsat.tv/images/logo.png',url:'https://hlspackager.akamaized.net/live/DB/KURDSAT_NEWS/HLS/KURDSAT_NEWS.m3u8'},
+
+// ── Waar TV ──
+{id:'waar',name:'Waar TV',nameKu:'وار تیڤی',cat:'general',country:'IQ',logo:'https://waartv.com/wp-content/uploads/2020/01/waar-logo.png',url:'https://live.kwikmotion.com/waarmedialive/waarmedia.smil/waarmediapublish/waarmedia_source/chunks.m3u8'},
+
+// ── Zagros ──
+{id:'zagros',name:'Zagros TV',nameKu:'زاگرۆس',cat:'general',country:'IQ',logo:'https://www.zagrostv.com/images/logo.png',url:'https://5a3ed7a72ed4b.streamlock.net/zagrostv/SMIL:myStream.smil/playlist.m3u8'},
+
+// ── GK (Gali Kurdistan) ──
+{id:'gk',name:'Gali Kurdistan',nameKu:'گەلی کوردستان',cat:'general',country:'IQ',logo:'https://www.gksat.tv/images/logo.png',url:'https://live.host247.net/gk/gksat/playlist.m3u8'},
+
+// ── Payam TV ──
+{id:'payam',name:'Payam TV',nameKu:'پەیام تیڤی',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://media2.streambrothers.com:1936/8218/8218/playlist.m3u8'},
+
+// ── Speda TV ──
+{id:'speda',name:'Speda TV',nameKu:'سپێدە',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.speda.tv/hls/stream.m3u8'},
+
+// ── Korek TV ──
+{id:'korek',name:'Korek TV',nameKu:'کۆرەک',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.korek.tv/hls/stream.m3u8'},
+
+// ── TRT Kurdi ──
+{id:'trt-kurdi',name:'TRT Kurdi',nameKu:'تی ئار تی کوردی',cat:'general',country:'TR',logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/TRT_K%C3%BCrdî_logosu.png/220px-TRT_K%C3%BCrdî_logosu.png',url:'https://tv-trtkurdi.medya.trt.com.tr/master_1440.m3u8'},
+
+// ── Sterk TV ──
+{id:'sterk',name:'Sterk TV',nameKu:'ستێرک',cat:'news',country:'TR',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://5dab1db4b25fe.streamlock.net/sterk/sterktv/playlist.m3u8'},
+
+// ── Ronahi TV ──
+{id:'ronahi',name:'Ronahi TV',nameKu:'ڕۆناهی',cat:'news',country:'TR',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://hlspackager.akamaized.net/live/DB/RONAHI_TV/HLS/RONAHI_TV.m3u8'},
+
+// ── Zarok TV ──
+{id:'zarok-sorani',name:'Zarok TV Sorani',nameKu:'زاروک سۆرانی',cat:'kids',country:'TR',logo:'https://zaroktv.com.tr/wp-content/uploads/2020/01/zarok-logo.png',url:'https://zindisorani.zaroktv.com.tr/hls/stream.m3u8'},
+{id:'zarok-kurmanci',name:'Zarok TV Kurmanci',nameKu:'زاروک کورمانجی',cat:'kids',country:'TR',logo:'https://zaroktv.com.tr/wp-content/uploads/2020/01/zarok-logo.png',url:'https://zindikurmanci.zaroktv.com.tr/hls/stream.m3u8'},
+
+// ── Jin TV ──
+{id:'jin',name:'Jin TV',nameKu:'ژن تیڤی',cat:'general',country:'TR',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.jintv.tv/hls/stream.m3u8'},
+
+// ── Medya Haber ──
+{id:'medya-haber',name:'Medya Haber',nameKu:'مێدیا هەبەر',cat:'news',country:'TR',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.medyahaber.tv/hls/stream.m3u8'},
+
+// ── AVA TV ──
+{id:'ava',name:'AVA TV',nameKu:'ئاڤا تیڤی',cat:'entertainment',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://familyhls.avatv.live/hls/stream.m3u8'},
+
+// ── Channel 8 Kurdish ──
+{id:'ch8',name:'Channel 8 Kurdish',nameKu:'کەنالی ٨ کوردی',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.channel8.com/Channel8-Kurdish/index.fmp4.m3u8'},
+
+// ── Afarin TV & Baxcha ──
+{id:'afarin',name:'Afarin TV',nameKu:'ئافەرین',cat:'entertainment',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://65f16f0fdfc51.streamlock.net/afarinTV/livestream/playlist.m3u8'},
+{id:'afarin-baxcha',name:'Afarin Baxcha',nameKu:'ئافەرین باخچە',cat:'kids',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://5dcabf026b188.streamlock.net/afarinTV/livestream/playlist.m3u8'},
+
+// ── Mixkurdy ──
+{id:'mixkurdy',name:'Mixkurdy',nameKu:'میکسکوردی',cat:'music',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://avr.host247.net/live/Mix-kurdy/playlist.m3u8'},
+
+// ── Nubar Plus ──
+{id:'nubar',name:'NUBAR Plus',nameKu:'نوبار پلەس',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'http://stream.nubar.tv:1935/private/NUBARPlus/playlist.m3u8'},
+
+// ── Farmoda TV ──
+{id:'farmoda',name:'Farmoda TV',nameKu:'فەرمودا',cat:'religious',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://avr.host247.net/live/FarmodaTV/playlist.m3u8'},
+
+// ── Avar TV ──
+{id:'avar',name:'Avar TV',nameKu:'ئاڤار',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://avr.host247.net/live/AvarTv/playlist.m3u8'},
+
+// ── Eman TV ──
+{id:'eman',name:'Eman TV',nameKu:'ئیمان',cat:'religious',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://avr.host247.net/live/emantv/playlist.m3u8'},
+
+// ── Shams TV ──
+{id:'shams',name:'Shams TV',nameKu:'شەمس',cat:'entertainment',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://stream.shams.tv/hls/stream.m3u8'},
+
+// ── iNEWS ──
+{id:'inews',name:'iNEWS TV',nameKu:'ئای نیوز',cat:'news',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.i-news.tv/hls/stream.m3u8'},
+
+// ── UTV ──
+{id:'utv',name:'UTV',nameKu:'یو تیڤی',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://mn-nl.mncdn.com/utviraqi2/64c80359/index.m3u8'},
+
+// ── Dijlah TV ──
+{id:'dijlah',name:'Dijlah TV',nameKu:'دیجلە',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://ghaasiflu.online/Dijlah/index.m3u8'},
+
+// ── Al Iraqia ──
+{id:'aliraqia',name:'Al Iraqia',nameKu:'ئەلعیراقیە',cat:'general',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://cdn.catiacast.video/abr/8d2ffb0aba244e8d9101a9488a7daa05/playlist.m3u8'},
+
+// ── MBC Iraq ──
+{id:'mbc-iraq',name:'MBC Iraq',nameKu:'ئێم بی سی عیراق',cat:'entertainment',country:'IQ',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-iraq/e38c44b1b43474e1c39cb5b90203691e/index.m3u8'},
+
+// ── Rojava TV ──
+{id:'rojava',name:'Rojava TV',nameKu:'ڕۆژئاوا',cat:'general',country:'SY',logo:'https://cdn-icons-png.flaticon.com/512/3659/3659832.png',url:'https://live.rojavatv.com/hls/stream.m3u8'},
+];
+
+/* ── CATEGORIES ── */
+const catList=['all','news','entertainment','music','kids','sports','religious','general','culture'];
+
+/* ── INIT ── */
+function init(){
+  applyTheme();
+  applyLang();
+  applySizeCSS();
+  renderCats();
+  renderChannels();
+  renderFavSection();
+  renderMyChannels();
+  document.getElementById('sizeSlider').value=chSize;
+  document.getElementById('sizeVal').textContent=chSize;
+  document.getElementById('loadHint').style.display='none';
+  if(channels.length>0)playChannel(channels[0]);
+}
+
+/* ── THEME ── */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',theme==='light'?'light':'');
+  const btn=document.getElementById('themeBtn');
+  btn.textContent=theme==='light'?'☀️':'🌙';
+  const dt=document.getElementById('darkToggle');
+  if(dt)dt.classList.toggle('on',theme==='dark');
+}
+function toggleTheme(){
+  theme=theme==='dark'?'light':'dark';
+  localStorage.setItem('kutv_theme',theme);
+  applyTheme();
+}
+
+/* ── LANGUAGE ── */
+function setLang(l){
+  lang=l;
+  localStorage.setItem('kutv_lang',l);
+  document.documentElement.dir=l==='en'?'ltr':'rtl';
+  document.documentElement.lang=l;
+  applyLang();
+  renderCats();
+  renderChannels();
+}
+function t(key){return(T[lang]||T.ku)[key]||key}
+function applyLang(){
+  document.documentElement.dir=lang==='en'?'ltr':'rtl';
+  document.documentElement.lang=lang;
+  document.querySelectorAll('.lang-pill').forEach(p=>p.classList.toggle('on',p.dataset.lang===lang));
+  document.getElementById('langSelect').value=lang;
+  const m={
+    lblNow:'nowWatching',lblFavs:'favChannels',lblAdd:'addChannel',lblPaste:'pasteList',
+    btnAdd:'addBtn',lblMy:'myChannels',lblClear:'clearAll',lblHome:'home',lblFav:'fav',
+    lblSet:'settings',lblSettings:'settings',lblDark:'darkMode',lblNotif:'notifications',
+    lblBattery:'batterySave',lblLang2:'language',lblShareTitle:'shareTitle',lblClose:'close',
+    lblFavPage:'favPage',lblNoFav:'noFav',lblQuality:'quality',lblSize:'chSize',lblSort:'sortBy'
+  };
+  for(const[id,key]of Object.entries(m)){
+    const el=document.getElementById(id);
+    if(el)el.textContent=t(key);
+  }
+  const si=document.getElementById('searchInput');
+  if(si)si.placeholder=t('search');
+}
+
+/* ── CATEGORIES ── */
+function renderCats(){
+  const bar=document.getElementById('catBar');
+  bar.innerHTML=catList.map(c=>`<button class="cat${c===currentCat?' on':''}" onclick="setCat('${c}')">${t(c==='all'?'allCat':c)}</button>`).join('');
+}
+function setCat(c){
+  currentCat=c;
+  renderCats();
+  renderChannels();
+}
+
+/* ── RENDER CHANNELS ── */
+function getDisplayName(ch){return lang==='ku'&&ch.nameKu?ch.nameKu:ch.name}
+function getAllChannels(){return[...channels,...myChannels]}
+function renderChannels(){
+  let list=getAllChannels();
+  if(currentCat!=='all')list=list.filter(c=>c.cat===currentCat);
+  const q=(document.getElementById('searchInput').value||'').toLowerCase().trim();
+  if(q)list=list.filter(c=>c.name.toLowerCase().includes(q)||(c.nameKu||'').includes(q));
+  if(currentSort==='az')list.sort((a,b)=>getDisplayName(a).localeCompare(getDisplayName(b)));
+  else if(currentSort==='country')list.sort((a,b)=>(a.country||'').localeCompare(b.country||''));
+  const el=document.getElementById('chList');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="eico">📺</div><div>${t('selectOther')}</div></div>`;return}
+  const fragment=document.createDocumentFragment();
+  list.forEach(ch=>{
+    const d=document.createElement('div');
+    d.className='ch'+(currentCh&&currentCh.id===ch.id?' on':'');
+    d.onclick=()=>playChannel(ch);
+    d.innerHTML=`<img src="${ch.logo||'https://cdn-icons-png.flaticon.com/512/3659/3659832.png'}" alt="${ch.name}" loading="lazy" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659832.png'"><div class="ch-name">${getDisplayName(ch)}</div>`;
+    fragment.appendChild(d);
+  });
+  el.innerHTML='';
+  el.appendChild(fragment);
+}
+function filterChannels(){renderChannels()}
+
+/* ── PLAY ── */
+function playChannel(ch){
+  currentCh=ch;
+  const v=document.getElementById('video');
+  const err=document.getElementById('videoError');
+  err.style.display='none';
+  v.style.display='';
+  document.getElementById('curName').textContent=getDisplayName(ch);
+  document.getElementById('curCat').textContent=t(ch.cat||'general');
+  document.getElementById('curLogo').src=ch.logo||'https://cdn-icons-png.flaticon.com/512/3659/3659832.png';
+  document.getElementById('lblNow').textContent=t('nowWatching');
+  updateFavBtn();
+  renderChannels();
+
+  if(hls){hls.destroy();hls=null}
+  if(!ch.url){showError();return}
+
+  if(Hls.isSupported()){
+    hls=new Hls({
+      maxBufferLength:batterySave?15:30,
+      maxMaxBufferLength:batterySave?30:60,
+      maxBufferSize:batterySave?30*1e6:60*1e6,
+      startLevel:batterySave?0:-1,
+      capLevelToPlayerSize:true,
+      enableWorker:true,
+      lowLatencyMode:false,
+      backBufferLength:batterySave?15:30
+    });
+    hls.loadSource(ch.url);
+    hls.attachMedia(v);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{v.play().catch(()=>{})});
+    hls.on(Hls.Events.ERROR,(_,d)=>{
+      if(d.fatal){
+        if(d.type===Hls.ErrorTypes.NETWORK_ERROR)hls.startLoad();
+        else showError();
+      }
+    });
+  }else if(v.canPlayType('application/vnd.apple.mpegurl')){
+    v.src=ch.url;
+    v.addEventListener('loadedmetadata',()=>{v.play().catch(()=>{})},{once:true});
+    v.addEventListener('error',()=>showError(),{once:true});
+  }else{showError()}
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showError(){
+  document.getElementById('video').style.display='none';
+  const err=document.getElementById('videoError');
+  err.style.display='flex';
+  document.getElementById('errMsg').textContent=t('streamUnavail');
+  document.getElementById('errSub').textContent=t('selectOther');
+}
+
+/* ── PiP & Fullscreen ── */
+function openPiP(){
+  const v=document.getElementById('video');
+  if(document.pictureInPictureElement)document.exitPictureInPicture();
+  else if(v.requestPictureInPicture)v.requestPictureInPicture().catch(()=>{});
+}
+function goFullscreen(){
+  const w=document.getElementById('vcWrap');
+  if(document.fullscreenElement)document.exitFullscreen();
+  else w.requestFullscreen?.();
+}
+
+/* ── SIZE ── */
+function applySizeCSS(){document.getElementById('chList').style.setProperty('--ch-size',chSize+'px')}
+function onSizeSlider(){
+  chSize=parseInt(document.getElementById('sizeSlider').value);
+  document.getElementById('sizeVal').textContent=chSize;
+  applySizeCSS();
+  localStorage.setItem('kutv_size',chSize);
+}
+function adjustSize(d){
+  chSize=Math.max(56,Math.min(120,chSize+d));
+  document.getElementById('sizeSlider').value=chSize;
+  document.getElementById('sizeVal').textContent=chSize;
+  applySizeCSS();
+  localStorage.setItem('kutv_size',chSize);
+}
+
+/* ── SORT ── */
+function setSort(s){
+  currentSort=s;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('sort'+(s==='az'?'AZ':s==='country'?'Country':'Default')).classList.add('on');
+  renderChannels();
+}
+
+/* ── FAVOURITES ── */
+function isFav(ch){return favs.includes(ch.id)}
+function updateFavBtn(){
+  document.getElementById('favBtn').textContent=currentCh&&isFav(currentCh)?'❤️':'🤍';
+}
+function toggleFav(){
+  if(!currentCh)return;
+  if(isFav(currentCh))favs=favs.filter(f=>f!==currentCh.id);
+  else favs.push(currentCh.id);
+  localStorage.setItem('kutv_favs',JSON.stringify(favs));
+  updateFavBtn();
+  renderFavSection();
+  renderFavPage();
+}
+function renderFavSection(){
+  const sec=document.getElementById('favSection');
+  const list=document.getElementById('favList');
+  const cnt=document.getElementById('favCount');
+  const favChs=getAllChannels().filter(c=>favs.includes(c.id));
+  if(!favChs.length){sec.style.display='none';return}
+  sec.style.display='';
+  cnt.textContent=`(${favChs.length})`;
+  const fragment=document.createDocumentFragment();
+  favChs.forEach(ch=>{
+    const d=document.createElement('div');
+    d.className='ch'+(currentCh&&currentCh.id===ch.id?' on':'');
+    d.onclick=()=>playChannel(ch);
+    d.innerHTML=`<img src="${ch.logo||'https://cdn-icons-png.flaticon.com/512/3659/3659832.png'}" alt="${ch.name}" loading="lazy" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659832.png'"><div class="ch-name">${getDisplayName(ch)}</div>`;
+    fragment.appendChild(d);
+  });
+  list.innerHTML='';
+  list.appendChild(fragment);
+}
+function renderFavPage(){
+  const list=document.getElementById('favPageList');
+  const emp=document.getElementById('favEmpty');
+  const favChs=getAllChannels().filter(c=>favs.includes(c.id));
+  if(!favChs.length){list.innerHTML='';emp.style.display='';return}
+  emp.style.display='none';
+  const fragment=document.createDocumentFragment();
+  favChs.forEach(ch=>{
+    const d=document.createElement('div');
+    d.className='ch'+(currentCh&&currentCh.id===ch.id?' on':'');
+    d.onclick=()=>{showPage('pgHome',document.getElementById('navHome'));playChannel(ch)};
+    d.innerHTML=`<img src="${ch.logo||'https://cdn-icons-png.flaticon.com/512/3659/3659832.png'}" alt="${ch.name}" loading="lazy" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659832.png'"><div class="ch-name">${getDisplayName(ch)}</div>`;
+    fragment.appendChild(d);
+  });
+  list.innerHTML='';
+  list.appendChild(fragment);
+}
+
+/* ── ADD CHANNELS ── */
+function toggleAdd(){
+  const f=document.getElementById('addForm');
+  const i=document.getElementById('addIcon');
+  f.style.display=f.style.display==='none'?'':'none';
+  i.style.transform=f.style.display==='none'?'':'rotate(45deg)';
+}
+function addChannels(){
+  const raw=document.getElementById('inBulk').value.trim();
+  if(!raw)return;
+  const lines=raw.split('\n').filter(l=>l.trim());
+  lines.forEach(l=>{
+    const parts=l.split(',').map(s=>s.trim());
+    if(parts.length>=2){
+      myChannels.push({id:'my-'+Date.now()+Math.random(),name:parts[0],cat:'general',country:'',logo:'',url:parts[1]});
+    }
+  });
+  localStorage.setItem('kutv_my',JSON.stringify(myChannels));
+  document.getElementById('inBulk').value='';
+  renderChannels();
+  renderMyChannels();
+}
+function renderMyChannels(){
+  const sec=document.getElementById('mySec');
+  const list=document.getElementById('myList');
+  if(!myChannels.length){sec.style.display='none';return}
+  sec.style.display='';
+  list.innerHTML=myChannels.map(ch=>`<div class="ch${currentCh&&currentCh.id===ch.id?' on':''}" onclick="playChannel(myChannels.find(c=>c.id==='${ch.id}'))"><img src="${ch.logo||'https://cdn-icons-png.flaticon.com/512/3659/3659832.png'}" alt="${ch.name}" loading="lazy" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659832.png'"><div class="ch-name">${ch.name}</div></div>`).join('');
+}
+function clearMyChannels(){
+  myChannels=[];
+  localStorage.setItem('kutv_my','[]');
+  renderChannels();
+  renderMyChannels();
+}
+
+/* ── SHARE ── */
+function openShareModal(){document.getElementById('shareModal').classList.add('show')}
+function closeShare(){document.getElementById('shareModal').classList.remove('show')}
+function shareVia(method){
+  const url=window.location.href;
+  const text=`📺 ${t('shareTitle')}: ${currentCh?getDisplayName(currentCh):'Kurdish Ultra TV'}`;
+  if(method==='copy'){navigator.clipboard.writeText(url).catch(()=>{})}
+  else if(method==='whatsapp')window.open(`https://wa.me/?text=${encodeURIComponent(text+' '+url)}`);
+  else if(method==='telegram')window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
+  else if(method==='twitter')window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`);
+  closeShare();
+}
+
+/* ── NAV ── */
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(id==='pgFavs')renderFavPage();
+}
+
+/* ── SETTINGS ── */
+function toggleNotif(){document.getElementById('notifToggle').classList.toggle('on')}
+function toggleBattery(){
+  batterySave=!batterySave;
+  localStorage.setItem('kutv_battery',batterySave);
+  document.getElementById('batteryToggle').classList.toggle('on',batterySave);
+  if(currentCh)playChannel(currentCh);
+}
+function setQuality(q){
+  if(!hls)return;
+  if(q==='auto')hls.currentLevel=-1;
+  else hls.currentLevel=parseInt(q);
+}
+
+/* ── VISIBILITY API (battery save) ── */
+document.addEventListener('visibilitychange',()=>{
+  if(!batterySave||!hls)return;
+  if(document.hidden){hls.stopLoad()}
+  else{hls.startLoad()}
+});
+
+/* ── KEYBOARD SHORTCUTS ── */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  const v=document.getElementById('video');
+  if(e.key===' '||e.key==='k'){e.preventDefault();v.paused?v.play():v.pause()}
+  else if(e.key==='f'){e.preventDefault();goFullscreen()}
+  else if(e.key==='p'){e.preventDefault();openPiP()}
+  else if(e.key==='m'){e.preventDefault();v.muted=!v.muted}
+});
+
+init();
+</script>
+</body>
+</html>
