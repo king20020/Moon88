@@ -13,7 +13,7 @@
 <meta name="description" content="Kurdish Ultra TV — Live Broadcasting Platform | پەخشی ڕاستەوخۆی کەنالەکانی جیهان"/>
 <title>Kurdish Ultra TV</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📺%3C/text%3E%3C/svg%3E"/>
-<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkt1cmRpc2ggVWx0cmEgVFYiLAogICJzaG9ydF9uYW1lIjogIkt1cmRpc2ggVFYiLAogICJkZXNjcmlwdGlvbiI6ICJMaXZlIEJyb2FkY2FzdGluZyBQbGF0Zm9ybSDigJQgS3VyZGlzaCwgQXJhYmljIGFuZCBXb3JsZCBUViBjaGFubmVscyB3aXRoIGJhdHRlcnktc2F2aW5nIHN0cmVhbWluZy4iLAogICJzdGFydF91cmwiOiAiLi8iLAogICJzY29wZSI6ICIuLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgIm9yaWVudGF0aW9uIjogImFueSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAzMDgwZiIsCiAgInRoZW1lX2NvbG9yIjogIiMwMzA4MGYiLAogICJsYW5nIjogImt1IiwKICAiZGlyIjogInJ0bCIsCiAgImNhdGVnb3JpZXMiOiBbImVudGVydGFpbm1lbnQiLCAidmlkZW8iLCAibmV3cyJdLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDE5MiAxOTInJTNFJTNDcmVjdCB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzMyJyBmaWxsPSclMjMwMDcwZmYnLyUzRSUzQ3RleHQgeD0nNTAlMjUnIHk9JzU1JTI1JyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmb250LXNpemU9JzExMCcgZG9taW5hbnQtYmFzZWxpbmU9J21pZGRsZSclM0Xwn5O6JTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInJTNFJTNDcmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9Jzk2JyBmaWxsPSclMjMwMDcwZmYnLyUzRSUzQ3RleHQgeD0nNTAlMjUnIHk9JzU1JTI1JyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmb250LXNpemU9JzMwMCcgZG9taW5hbnQtYmFzZWxpbmU9J21pZGRsZSclM0Xwn5O6JTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQo="/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -895,11 +895,12 @@ function packCacheClearAll(){
    SERVICE WORKER
    ────────────────────────────────────────────────────────────── */
 function registerSW(){
+  // Single-file build: no separate sw.js. Skip registration to avoid 404.
+  // Unregister any previously cached SW from older multi-file build:
   if(!("serviceWorker" in navigator))return;
-  // Register after a short idle delay so it never competes with playback startup.
-  setTimeout(()=>{
-    navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{});
-  },2500);
+  navigator.serviceWorker.getRegistrations().then(rs=>{
+    rs.forEach(r=>{try{r.unregister()}catch(e){}});
+  }).catch(()=>{});
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -1069,13 +1070,19 @@ async function loadPack(key,{quiet}={quiet:false}){
 }
 
 async function loadAutoPacks(){
+  // Load EVERY pack (every region + every category). Six in parallel at a time
+  // so we don't melt the network. Failures are silently skipped — the next pack
+  // still gets a chance. After this, every world channel is in the list.
   const hint=$("loadingHint");hint.style.display="block";hint.textContent=T("loading");
   setBar(8);
-  const keys=Object.keys(PACKS).filter(k=>PACKS[k].auto);
-  for(let i=0;i<keys.length;i++){
-    await loadPack(keys[i],{quiet:true});
-    setBar(8+((i+1)/keys.length)*80);
-    await new Promise(r=>setTimeout(r,80));
+  const keys=Object.keys(PACKS);
+  const BATCH=6;
+  let done=0;
+  for(let i=0;i<keys.length;i+=BATCH){
+    const slice=keys.slice(i,i+BATCH);
+    await Promise.allSettled(slice.map(k=>loadPack(k,{quiet:true})));
+    done+=slice.length;
+    setBar(8+(done/keys.length)*80);
   }
   setBar(100);setTimeout(()=>setBar(0),700);hint.style.display="none";
   renderAll();
@@ -1137,8 +1144,9 @@ function sortChannels(arr){
     if(ca!==cb)return ca-cb;return a.name.localeCompare(b.name);
   });
   if(state.sortMode==="live")return [...arr].sort((a,b)=>{
-    const av=state.okSet.has(a.stream)?0:state.deadSet.has(a.stream)?2:1;
-    const bv=state.okSet.has(b.stream)?0:state.deadSet.has(b.stream)?2:1;
+    // OK first, everything else equal — no "dead" tier any more.
+    const av=state.okSet.has(a.stream)?0:1;
+    const bv=state.okSet.has(b.stream)?0:1;
     return av-bv;
   });
   return arr;
@@ -1162,22 +1170,23 @@ function renderCats(){
 function setCategory(cat){state.activeCat=cat;renderCats();renderChannels()}
 
 function chiHTML(ch,opts={}){
-  const isDead=state.deadSet.has(ch.stream);
+  // Every channel is clickable — we never blacken or hide. The small status
+  // dot is informational only (green = confirmed-ok, grey = unknown).
   const isOk=state.okSet.has(ch.stream);
   const isSel=state.selected&&state.selected.stream===ch.stream;
   const isFav=state.favSet.has(ch.stream);
   const durLbl=state.durMap[ch.stream]?getDurLabel(ch.stream):"";
-  const stClass=isDead?"dead":isOk?"ok":"unk";
+  const stClass=isOk?"ok":"unk";
   const letter=letterOf(ch.name);
-  const showFav = !opts.hideFav && !isDead;
-  return `<button class="chi ${isSel?"on":""} ${isFav?"fav":""} ${isDead?"dead":""}" data-act="${isDead?"dead-info":"select"}" data-url="${esc(ch.stream)}" data-name="${esc(ch.name)}">
+  const showFav = !opts.hideFav;
+  return `<button class="chi ${isSel?"on":""} ${isFav?"fav":""}" data-act="select" data-url="${esc(ch.stream)}" data-name="${esc(ch.name)}">
     <div class="chlo" data-letter="${esc(letter)}"><img src="${esc(ch.logo||FB)}" alt="" loading="lazy" decoding="async" data-fallback="1"/></div>
     <div class="chm">
       <div class="chn">${esc(ch.name)}</div>
       <div class="chc">${esc(ch.category||"")}</div>
       ${durLbl?`<div class="ch-dur">⏱ ${esc(durLbl)}</div>`:""}
     </div>
-    ${isDead?`<span class="dead-tag">${esc(T("deadCh"))}</span>`:showFav?`<button class="ch-fav" data-act="toggle-fav-url" data-url="${esc(ch.stream)}" title="fav">${isFav?"⭐":"☆"}</button>`:""}
+    ${showFav?`<button class="ch-fav" data-act="toggle-fav-url" data-url="${esc(ch.stream)}" title="fav">${isFav?"⭐":"☆"}</button>`:""}
     <div class="chst ${stClass}"></div>
   </button>`;
 }
@@ -1293,7 +1302,7 @@ function pushRecent(url){
 function selectChByUrl(url){
   const ch=state.channelByUrl.get(url);
   if(!ch)return;
-  if(state.deadSet.has(ch.stream)){showToast("⚠️ "+ch.name+" — "+T("channelDead"));return}
+  // No dead-channel guard: every channel is clickable, user retries freely.
   state.selected=ch;playChannel(ch);renderAll();
 }
 
@@ -1321,7 +1330,10 @@ function showStreamError(){
 }
 
 function markDead(ch){
-  state.deadSet.add(ch.stream);state.okSet.delete(ch.stream);
+  // User explicitly asked: never mark a channel as dead. Keep status indicators
+  // tracking-only so the small dot can hint at health, but never disable the
+  // channel, hide it, strike it through, or block clicks.
+  state.okSet.delete(ch.stream);
   showStreamError();renderAll();
   showToast("⚠️ "+ch.name+" — "+T("channelDead"));
 }
@@ -1413,7 +1425,7 @@ function changeQuality(){
   state.hlsInst.currentLevel=parseInt($("qualSel").value);
 }
 
-function retryStream(){if(state.selected){state.deadSet.delete(state.selected.stream);playChannel(state.selected)}}
+function retryStream(){if(state.selected){state.okSet.delete(state.selected.stream);playChannel(state.selected)}}
 
 /* ──────────────────────────────────────────────────────────────
    PIP / FULLSCREEN / VOLUME / MUTE
@@ -1656,7 +1668,7 @@ function bindEvents(){
       case "ArrowDown":e.preventDefault();const cd=Math.max(0,(v.volume||0)-0.05);v.volume=cd;state.lastVolume=cd;prefsSave();$("volSl").value=Math.round(cd*100);break;
       case "ArrowLeft":case "ArrowRight":{
         e.preventDefault();
-        const list=state.channels.filter(c=>!state.deadSet.has(c.stream));
+        const list=state.channels.slice();
         if(!list.length||!state.selected)return;
         let i=list.findIndex(c=>c.stream===state.selected.stream);
         i=e.key==="ArrowRight"?(i+1)%list.length:(i-1+list.length)%list.length;
