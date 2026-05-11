@@ -184,15 +184,18 @@ body.day-mode .lt{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff);-web
 .dead-tag{font-size:8px;background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.3);color:var(--re);padding:1px 5px;border-radius:4px;font-family:var(--fd);letter-spacing:.5px;flex-shrink:0;white-space:nowrap}
 
 /* Sections */
-.fav-section,.my-sec,.recent-sec{border-top:1px solid var(--b);flex-shrink:0}
-.fav-hdr,.my-hdr,.recent-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:pointer;font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.5px}
+.fav-section,.my-sec{border-top:1px solid var(--b);flex-shrink:0}
+.fav-hdr,.my-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;cursor:pointer;font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.5px}
 .fav-hdr{color:var(--ye)}
 .my-hdr{color:var(--cy);cursor:default}
-.recent-hdr{color:#9aa9bf}
-.fav-hdr span,.my-hdr span,.recent-hdr span{opacity:.6;font-size:9px;color:var(--tm);font-weight:400}
+.fav-hdr span,.my-hdr span{opacity:.6;font-size:9px;color:var(--tm);font-weight:400}
 .my-clear{font-size:9px;color:var(--re);cursor:pointer;font-weight:700;font-family:var(--fd);letter-spacing:.4px}
-.fav-list,.my-list,.recent-list{padding:0 5px 5px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b) transparent;display:none}
-.fav-list.open,.my-list.open,.recent-list.open{display:block}
+.fav-list,.my-list{padding:0 5px 5px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b) transparent;display:none}
+.fav-list.open,.my-list.open{display:block}
+
+/* "All Channels" header above the main list (so it lives at the bottom of the sidebar) */
+.all-ch-hdr{display:flex;align-items:center;gap:8px;border-top:2px solid var(--b);margin-top:8px;padding:10px 10px 6px;font-family:var(--fd);font-size:13px;font-weight:800;color:var(--cy);letter-spacing:.5px}
+.all-ch-hdr .all-ch-sub{margin-inline-start:auto;font-size:10px;font-weight:600;color:var(--tm);opacity:.85}
 
 /* ── PACKS (regions / categories) ── */
 .packs-section{background:var(--sur);border:1px solid var(--b);border-radius:15px;margin-top:10px;overflow:hidden}
@@ -581,27 +584,7 @@ body.day-mode .cs-title{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff
       <span class="size-val" id="sizeVal">72</span>
     </div>
 
-    <div class="sort-bar">
-      <span class="sort-lbl" data-t="sortBy"></span>
-      <button class="sort-btn on" id="sortDefault" data-act="sort" data-m="default">—</button>
-      <button class="sort-btn" id="sortAZ" data-act="sort" data-m="az">A→Z</button>
-      <button class="sort-btn" id="sortCountry" data-act="sort" data-m="country">🌍</button>
-      <button class="sort-btn" id="sortLive" data-act="sort" data-m="live">✅</button>
-    </div>
-    <div class="cats" id="catBar"></div>
-    <div class="lh" id="loadingHint" style="display:none"></div>
-    <div class="chl" id="chList"></div>
-
-    <!-- Recent -->
-    <div class="recent-sec" id="recentSection" style="display:none">
-      <div class="recent-hdr" data-act="toggle-recent">
-        🕐 <span data-t="recentChannels"></span>
-        <span id="recentCount"></span>
-      </div>
-      <div class="recent-list" id="recentList"></div>
-    </div>
-
-    <!-- Favourites -->
+    <!-- Favourites (now ABOVE the channel list) -->
     <div class="fav-section" id="favSection" style="display:none">
       <div class="fav-hdr" data-act="toggle-favlist">
         ⭐ <span data-t="favChannels"></span>
@@ -618,6 +601,22 @@ body.day-mode .cs-title{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff
       </div>
       <div class="my-list open" id="myList"></div>
     </div>
+
+    <!-- All Channels (main list) — last so users always scroll to it at the bottom -->
+    <div class="all-ch-hdr">
+      📺 <span data-t="allChannelsTitle"></span>
+      <span class="all-ch-sub" id="allChCountInline"></span>
+    </div>
+    <div class="sort-bar">
+      <span class="sort-lbl" data-t="sortBy"></span>
+      <button class="sort-btn on" id="sortDefault" data-act="sort" data-m="default">—</button>
+      <button class="sort-btn" id="sortAZ" data-act="sort" data-m="az">A→Z</button>
+      <button class="sort-btn" id="sortCountry" data-act="sort" data-m="country">🌍</button>
+      <button class="sort-btn" id="sortLive" data-act="sort" data-m="live">✅</button>
+    </div>
+    <div class="cats" id="catBar"></div>
+    <div class="lh" id="loadingHint" style="display:none"></div>
+    <div class="chl" id="chList"></div>
   </div>
 </div>
 </div>
@@ -706,9 +705,9 @@ body.day-mode .cs-title{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff
    TRANSLATIONS
    ────────────────────────────────────────────────────────────── */
 const LANGS={
-ku:{dir:"rtl",appSub:"پلاتفۆرمی پەخشی ڕاستەوخۆ",speed:"خێرایی",quality:"کوالیتی",status:"دۆخ",statusVal:"باشترکراو",channels:"کەناڵەکان",search:"گەڕان...",allCat:"هەموو",noChannels:"کەناڵ نەدۆزرایەوە",addChannel:"زیادکردنی کەناڵ",pasteList:"کۆدی کەناڵ بکولێنە (name;url یان M3U)",pastePh:"kurdistan-tv;http://...\nkurdmax;http://...",addBtn:"زیادبکە",streamUnavail:"ستریم بەردەست نییە",channelDead:"ئەم کەناڵە کار ناکات",selectOther:"کەناڵی دیکە هەڵبژێرە",devSupport:"پشتگیری گەشەپێدەر",devSub:"پشتگیریت کردنی دروستکەری وێبسایتەکە یارمەتیمان دەدات",telegram:"تێلێگرام",donateBtn:"پشتگیری — Ibrahim King",donateClose:"داخستن",donateModalTitle:"پشتگیری گەشەپێدەر",donateModalSub:"بۆ پشتگیری بە FastPay",copyNum:"کۆپیکردنی ژمارە",copied:"کۆپیکرا ✓",fastpayLabel:"FastPay",recipient:"وەرگر",phoneNum:"ژمارەی مۆبایل",sendMoney:"پارە بنێرە",transfer:"گواستنەوە",back:"گەرانەوە",nowWatching:"ئێستا تەماشادەکەیت",support:"پشتگیری",cardS1T:"سەرورێکخستنی سێرڤەر",cardS1B:"پشتگیریت یارمەتیمان دەدات کەناڵەکان بەردەوام بێن.",cardS2T:"کەناڵی زیاتر",cardS2B:"بە پشتگیریت دەتوانین کەناڵی زیاتر زیادبکەین.",cardS3T:"ئاپدەیت بەردەوام",cardS3B:"پلاتفۆرمەکە بەردەوام باشتردەکرێت.",cardS4T:"پشتگیری بەکارهێنەران",cardS4B:"تیمی پشتگیری بەردەوام ئامادەیە.",shareTitle:"شێرکردنی کەناڵ",shareBtn:"📤 شێر",copyUrl:"کۆپیکردنی لینک",favChannels:"دڵخوازەکان",myChannels:"کەناڵەکانم",clearAll:"سڕینەوە",enhance:"باشترکردن",chExists:"کەناڵەکە بوونی هەیە ✓",sortBy:"ڕیزکردن:",replaced:"گۆڕدرا ✓",chSize:"قەبارەی کەناڵ",setDuration:"دانانی ماوەی کەناڵ",minutes:"خولەک",min:"خ",hour:"کاتژمێر",hours:"کاتژمێر",clearDur:"سڕینەوەی ماوە",noDuration:"دانانی ماوە",save:"پاشەکەوت",deadCh:"کار ناکات",recentChannels:"کۆتا تەماشاکراو",morePacksTitle:"پاکێجی زیاتری کەناڵ",morePacksSub:"کلیک بکە بۆ بارکردنی هەرێم/کاتیگۆری",packsRegion:"وڵاتان",countriesNav:"وڵاتان",countriesTitle:"هەموو وڵاتانی جیهان",countriesSub:"پەنجە لە وڵاتێک بدە بۆ بینینی هەموو کەناڵەکانی ئەو وڵاتە",packsCategory:"کاتیگۆری",loadAllArab:"هەموو عەرەبی",loadPopular:"بەناوبانگەکان",clearCache:"پاککردنەوەی کاش",loading:"بارکردن...",retry:"دووبارە",settings:"ڕێکخستنەکان",dataSaver:"کەمکردنی داتا",dataSaverDesc:"نزمترین کوالیتی، وزە کەمتر",autoplay:"خۆکار لێدان",autoplayDesc:"کاتێک کەناڵ هەڵدەبژێریت",wakeLock:"شاشە کوێر نەبێت",wakeLockDesc:"کاتێک تەماشا دەکەی",muteWhenHidden:"کوێرکردن کاتێک تاب لاوەیە",muteWhenHiddenDesc:"کاتێک تاب پشتە، دەنگ کوێر دەکات",netBannerSlow:"تۆڕت هێواشە — کوالیتی نزم دانراوە بۆ پاراستنی وزە",netBannerSaveData:"دۆخی پاراستنی داتا چالاکە — کوالیتی نزم"},
-ar:{dir:"rtl",appSub:"منصة البث المباشر",speed:"السرعة",quality:"الجودة",status:"الحالة",statusVal:"مُحسَّن",channels:"القنوات",search:"بحث...",allCat:"الكل",noChannels:"لا توجد قنوات",addChannel:"إضافة قناة",pasteList:"الصق كود القنوات (name;url) أو M3U",pastePh:"channel;http://...",addBtn:"إضافة",streamUnavail:"البث غير متاح",channelDead:"هذه القناة لا تعمل",selectOther:"اختر قناة أخرى",devSupport:"دعم مطوّر الموقع",devSub:"دعمك يساعدنا على تطوير المنصة",telegram:"تيليغرام",donateBtn:"دعم — Ibrahim King",donateClose:"إغلاق",donateModalTitle:"دعم مطوّر الموقع",donateModalSub:"لدعم المطوّر عبر FastPay",copyNum:"نسخ الرقم",copied:"تم النسخ ✓",fastpayLabel:"FastPay",recipient:"المستلم",phoneNum:"رقم الهاتف",sendMoney:"إرسال الأموال",transfer:"تحويل",back:"رجوع",nowWatching:"تشاهد الآن",support:"الدعم",cardS1T:"صيانة الخوادم",cardS1B:"دعمك يحافظ على القنوات.",cardS2T:"المزيد من القنوات",cardS2B:"بدعمك نضيف المزيد.",cardS3T:"تحديثات مستمرة",cardS3B:"يتم تحديث المنصة باستمرار.",cardS4T:"دعم المستخدمين",cardS4B:"فريق الدعم دائمًا جاهز.",shareTitle:"مشاركة القناة",shareBtn:"📤 مشاركة",copyUrl:"نسخ الرابط",favChannels:"المفضلة",myChannels:"قنواتي",clearAll:"مسح الكل",enhance:"تحسين",chExists:"القناة موجودة ✓",sortBy:"ترتيب:",replaced:"تم الاستبدال ✓",chSize:"حجم القناة",setDuration:"تعيين مدة القناة",minutes:"دقيقة",min:"د",hour:"ساعة",hours:"ساعات",clearDur:"مسح المدة",noDuration:"تعيين مدة",save:"حفظ",deadCh:"لا يعمل",recentChannels:"شوهدت مؤخراً",morePacksTitle:"حزم قنوات إضافية",morePacksSub:"اضغط لتحميل منطقة/فئة",packsRegion:"الدول",countriesNav:"الدول",countriesTitle:"كل دول العالم",countriesSub:"اضغط على دولة لرؤية كل قنواتها",packsCategory:"الفئات",loadAllArab:"كل العربية",loadPopular:"الشائعة",clearCache:"مسح الكاش",loading:"تحميل...",retry:"إعادة",settings:"الإعدادات",dataSaver:"توفير البيانات",dataSaverDesc:"جودة منخفضة، طاقة أقل",autoplay:"تشغيل تلقائي",autoplayDesc:"عند اختيار قناة",wakeLock:"إبقاء الشاشة مضاءة",wakeLockDesc:"أثناء المشاهدة",muteWhenHidden:"كتم عند إخفاء التبويب",muteWhenHiddenDesc:"يكتم الصوت تلقائيًا",netBannerSlow:"شبكتك بطيئة — تم تخفيض الجودة لتوفير الطاقة",netBannerSaveData:"وضع توفير البيانات مفعل — جودة منخفضة"},
-en:{dir:"ltr",appSub:"Live Broadcasting Platform",speed:"Speed",quality:"Quality",status:"Status",statusVal:"Optimized",channels:"Channels",search:"Search...",allCat:"All",noChannels:"No channels found",addChannel:"Add Channel",pasteList:"Paste channel list (name;url) or M3U",pastePh:"channel-name;http://...\nchannel2;http://...",addBtn:"Add",streamUnavail:"Stream unavailable",channelDead:"This channel is not working",selectOther:"Select another channel",devSupport:"Support the Developer",devSub:"Your support keeps the platform running",telegram:"Telegram",donateBtn:"Support — Ibrahim King",donateClose:"Close",donateModalTitle:"Support the Developer",donateModalSub:"Support via FastPay",copyNum:"Copy Number",copied:"Copied ✓",fastpayLabel:"FastPay",recipient:"Recipient",phoneNum:"Phone Number",sendMoney:"Send Money",transfer:"Transfer",back:"Go Back",nowWatching:"Now Watching",support:"Support",cardS1T:"Server Maintenance",cardS1B:"Your support keeps channels running.",cardS2T:"More Channels",cardS2B:"With your support we can add more.",cardS3T:"Continuous Updates",cardS3B:"The platform is continuously updated.",cardS4T:"User Support",cardS4B:"Support team is always ready.",shareTitle:"Share Channel",shareBtn:"📤 Share",copyUrl:"Copy Link",favChannels:"Favourites",myChannels:"My Channels",clearAll:"Clear",enhance:"Enhance",chExists:"Channel exists ✓",sortBy:"Sort:",replaced:"Replaced ✓",chSize:"Channel size",setDuration:"Set Duration",minutes:"minutes",min:"min",hour:"hour",hours:"hours",clearDur:"Clear Duration",noDuration:"Set duration",save:"Save",deadCh:"Not working",recentChannels:"Recently Watched",morePacksTitle:"More Channel Packs",morePacksSub:"Tap to load region/category",packsRegion:"Regions",countriesNav:"Countries",countriesTitle:"All World Countries",countriesSub:"Tap a country to see all its channels",packsCategory:"Categories",loadAllArab:"All Arabic",loadPopular:"Popular",clearCache:"Clear Cache",loading:"Loading...",retry:"Retry",settings:"Settings",dataSaver:"Data Saver",dataSaverDesc:"Low quality, save battery",autoplay:"Autoplay",autoplayDesc:"When you pick a channel",wakeLock:"Keep screen awake",wakeLockDesc:"While watching",muteWhenHidden:"Mute when tab hidden",muteWhenHiddenDesc:"Auto mute on background",netBannerSlow:"Slow network — quality reduced to save battery",netBannerSaveData:"Data Saver active — low quality"}
+ku:{dir:"rtl",appSub:"پلاتفۆرمی پەخشی ڕاستەوخۆ",speed:"خێرایی",quality:"کوالیتی",status:"دۆخ",statusVal:"باشترکراو",channels:"کەناڵەکان",search:"گەڕان...",allCat:"هەموو",noChannels:"کەناڵ نەدۆزرایەوە",addChannel:"زیادکردنی کەناڵ",pasteList:"کۆدی کەناڵ بکولێنە (name;url یان M3U)",pastePh:"kurdistan-tv;http://...\nkurdmax;http://...",addBtn:"زیادبکە",streamUnavail:"ستریم بەردەست نییە",channelDead:"ئەم کەناڵە کار ناکات",selectOther:"کەناڵی دیکە هەڵبژێرە",devSupport:"پشتگیری گەشەپێدەر",devSub:"پشتگیریت کردنی دروستکەری وێبسایتەکە یارمەتیمان دەدات",telegram:"تێلێگرام",donateBtn:"پشتگیری — Ibrahim King",donateClose:"داخستن",donateModalTitle:"پشتگیری گەشەپێدەر",donateModalSub:"بۆ پشتگیری بە FastPay",copyNum:"کۆپیکردنی ژمارە",copied:"کۆپیکرا ✓",fastpayLabel:"FastPay",recipient:"وەرگر",phoneNum:"ژمارەی مۆبایل",sendMoney:"پارە بنێرە",transfer:"گواستنەوە",back:"گەرانەوە",nowWatching:"ئێستا تەماشادەکەیت",support:"پشتگیری",cardS1T:"سەرورێکخستنی سێرڤەر",cardS1B:"پشتگیریت یارمەتیمان دەدات کەناڵەکان بەردەوام بێن.",cardS2T:"کەناڵی زیاتر",cardS2B:"بە پشتگیریت دەتوانین کەناڵی زیاتر زیادبکەین.",cardS3T:"ئاپدەیت بەردەوام",cardS3B:"پلاتفۆرمەکە بەردەوام باشتردەکرێت.",cardS4T:"پشتگیری بەکارهێنەران",cardS4B:"تیمی پشتگیری بەردەوام ئامادەیە.",shareTitle:"شێرکردنی کەناڵ",shareBtn:"📤 شێر",copyUrl:"کۆپیکردنی لینک",favChannels:"دڵخوازەکان",myChannels:"کەناڵەکانم",clearAll:"سڕینەوە",enhance:"باشترکردن",chExists:"کەناڵەکە بوونی هەیە ✓",sortBy:"ڕیزکردن:",replaced:"گۆڕدرا ✓",chSize:"قەبارەی کەناڵ",setDuration:"دانانی ماوەی کەناڵ",minutes:"خولەک",min:"خ",hour:"کاتژمێر",hours:"کاتژمێر",clearDur:"سڕینەوەی ماوە",noDuration:"دانانی ماوە",save:"پاشەکەوت",deadCh:"کار ناکات",recentChannels:"کۆتا تەماشاکراو",allChannelsTitle:"هەموو کەناڵەکان",morePacksTitle:"پاکێجی زیاتری کەناڵ",morePacksSub:"کلیک بکە بۆ بارکردنی هەرێم/کاتیگۆری",packsRegion:"وڵاتان",countriesNav:"وڵاتان",countriesTitle:"هەموو وڵاتانی جیهان",countriesSub:"پەنجە لە وڵاتێک بدە بۆ بینینی هەموو کەناڵەکانی ئەو وڵاتە",packsCategory:"کاتیگۆری",loadAllArab:"هەموو عەرەبی",loadPopular:"بەناوبانگەکان",clearCache:"پاککردنەوەی کاش",loading:"بارکردن...",retry:"دووبارە",settings:"ڕێکخستنەکان",dataSaver:"کەمکردنی داتا",dataSaverDesc:"نزمترین کوالیتی، وزە کەمتر",autoplay:"خۆکار لێدان",autoplayDesc:"کاتێک کەناڵ هەڵدەبژێریت",wakeLock:"شاشە کوێر نەبێت",wakeLockDesc:"کاتێک تەماشا دەکەی",muteWhenHidden:"کوێرکردن کاتێک تاب لاوەیە",muteWhenHiddenDesc:"کاتێک تاب پشتە، دەنگ کوێر دەکات",netBannerSlow:"تۆڕت هێواشە — کوالیتی نزم دانراوە بۆ پاراستنی وزە",netBannerSaveData:"دۆخی پاراستنی داتا چالاکە — کوالیتی نزم"},
+ar:{dir:"rtl",appSub:"منصة البث المباشر",speed:"السرعة",quality:"الجودة",status:"الحالة",statusVal:"مُحسَّن",channels:"القنوات",search:"بحث...",allCat:"الكل",noChannels:"لا توجد قنوات",addChannel:"إضافة قناة",pasteList:"الصق كود القنوات (name;url) أو M3U",pastePh:"channel;http://...",addBtn:"إضافة",streamUnavail:"البث غير متاح",channelDead:"هذه القناة لا تعمل",selectOther:"اختر قناة أخرى",devSupport:"دعم مطوّر الموقع",devSub:"دعمك يساعدنا على تطوير المنصة",telegram:"تيليغرام",donateBtn:"دعم — Ibrahim King",donateClose:"إغلاق",donateModalTitle:"دعم مطوّر الموقع",donateModalSub:"لدعم المطوّر عبر FastPay",copyNum:"نسخ الرقم",copied:"تم النسخ ✓",fastpayLabel:"FastPay",recipient:"المستلم",phoneNum:"رقم الهاتف",sendMoney:"إرسال الأموال",transfer:"تحويل",back:"رجوع",nowWatching:"تشاهد الآن",support:"الدعم",cardS1T:"صيانة الخوادم",cardS1B:"دعمك يحافظ على القنوات.",cardS2T:"المزيد من القنوات",cardS2B:"بدعمك نضيف المزيد.",cardS3T:"تحديثات مستمرة",cardS3B:"يتم تحديث المنصة باستمرار.",cardS4T:"دعم المستخدمين",cardS4B:"فريق الدعم دائمًا جاهز.",shareTitle:"مشاركة القناة",shareBtn:"📤 مشاركة",copyUrl:"نسخ الرابط",favChannels:"المفضلة",myChannels:"قنواتي",clearAll:"مسح الكل",enhance:"تحسين",chExists:"القناة موجودة ✓",sortBy:"ترتيب:",replaced:"تم الاستبدال ✓",chSize:"حجم القناة",setDuration:"تعيين مدة القناة",minutes:"دقيقة",min:"د",hour:"ساعة",hours:"ساعات",clearDur:"مسح المدة",noDuration:"تعيين مدة",save:"حفظ",deadCh:"لا يعمل",recentChannels:"شوهدت مؤخراً",allChannelsTitle:"كل القنوات",morePacksTitle:"حزم قنوات إضافية",morePacksSub:"اضغط لتحميل منطقة/فئة",packsRegion:"الدول",countriesNav:"الدول",countriesTitle:"كل دول العالم",countriesSub:"اضغط على دولة لرؤية كل قنواتها",packsCategory:"الفئات",loadAllArab:"كل العربية",loadPopular:"الشائعة",clearCache:"مسح الكاش",loading:"تحميل...",retry:"إعادة",settings:"الإعدادات",dataSaver:"توفير البيانات",dataSaverDesc:"جودة منخفضة، طاقة أقل",autoplay:"تشغيل تلقائي",autoplayDesc:"عند اختيار قناة",wakeLock:"إبقاء الشاشة مضاءة",wakeLockDesc:"أثناء المشاهدة",muteWhenHidden:"كتم عند إخفاء التبويب",muteWhenHiddenDesc:"يكتم الصوت تلقائيًا",netBannerSlow:"شبكتك بطيئة — تم تخفيض الجودة لتوفير الطاقة",netBannerSaveData:"وضع توفير البيانات مفعل — جودة منخفضة"},
+en:{dir:"ltr",appSub:"Live Broadcasting Platform",speed:"Speed",quality:"Quality",status:"Status",statusVal:"Optimized",channels:"Channels",search:"Search...",allCat:"All",noChannels:"No channels found",addChannel:"Add Channel",pasteList:"Paste channel list (name;url) or M3U",pastePh:"channel-name;http://...\nchannel2;http://...",addBtn:"Add",streamUnavail:"Stream unavailable",channelDead:"This channel is not working",selectOther:"Select another channel",devSupport:"Support the Developer",devSub:"Your support keeps the platform running",telegram:"Telegram",donateBtn:"Support — Ibrahim King",donateClose:"Close",donateModalTitle:"Support the Developer",donateModalSub:"Support via FastPay",copyNum:"Copy Number",copied:"Copied ✓",fastpayLabel:"FastPay",recipient:"Recipient",phoneNum:"Phone Number",sendMoney:"Send Money",transfer:"Transfer",back:"Go Back",nowWatching:"Now Watching",support:"Support",cardS1T:"Server Maintenance",cardS1B:"Your support keeps channels running.",cardS2T:"More Channels",cardS2B:"With your support we can add more.",cardS3T:"Continuous Updates",cardS3B:"The platform is continuously updated.",cardS4T:"User Support",cardS4B:"Support team is always ready.",shareTitle:"Share Channel",shareBtn:"📤 Share",copyUrl:"Copy Link",favChannels:"Favourites",myChannels:"My Channels",clearAll:"Clear",enhance:"Enhance",chExists:"Channel exists ✓",sortBy:"Sort:",replaced:"Replaced ✓",chSize:"Channel size",setDuration:"Set Duration",minutes:"minutes",min:"min",hour:"hour",hours:"hours",clearDur:"Clear Duration",noDuration:"Set duration",save:"Save",deadCh:"Not working",recentChannels:"Recently Watched",allChannelsTitle:"All Channels",morePacksTitle:"More Channel Packs",morePacksSub:"Tap to load region/category",packsRegion:"Regions",countriesNav:"Countries",countriesTitle:"All World Countries",countriesSub:"Tap a country to see all its channels",packsCategory:"Categories",loadAllArab:"All Arabic",loadPopular:"Popular",clearCache:"Clear Cache",loading:"Loading...",retry:"Retry",settings:"Settings",dataSaver:"Data Saver",dataSaverDesc:"Low quality, save battery",autoplay:"Autoplay",autoplayDesc:"When you pick a channel",wakeLock:"Keep screen awake",wakeLockDesc:"While watching",muteWhenHidden:"Mute when tab hidden",muteWhenHiddenDesc:"Auto mute on background",netBannerSlow:"Slow network — quality reduced to save battery",netBannerSaveData:"Data Saver active — low quality"}
 };
 
 const FB="https://cdn-icons-png.flaticon.com/512/149/149071.png";
@@ -1369,6 +1368,7 @@ function renderChannels(){
   const limited=filtered.slice(0,RENDER_LIMIT);
   const overflow=filtered.length-limited.length;
   $("chCount").textContent=total;$("statCh").textContent=total;$("statOk").textContent=state.okSet.size;
+  const inline=$("allChCountInline");if(inline)inline.textContent=filtered.length+" / "+total;
   const list=$("chList");
   if(!limited.length){list.innerHTML=`<div style="text-align:center;color:var(--tm);padding:20px;font-family:var(--fd);font-size:12px">${esc(T("noChannels"))}</div>`;return}
   const rows=limited.map(ch=>chiHTML(ch));
@@ -1386,12 +1386,8 @@ function renderFavs(){
 }
 
 function renderRecents(){
-  const list=state.recents.map(u=>state.channelByUrl.get(u)).filter(Boolean);
-  const sec=$("recentSection");
-  if(!list.length){sec.style.display="none";return}
-  sec.style.display="block";$("recentCount").textContent=list.length;
-  $("recentList").classList.toggle("open",state.recentListOpen);
-  $("recentList").innerHTML=list.slice(0,MAX_RECENTS).map(ch=>chiHTML(ch,{hideFav:true})).join("");
+  // Recents UI has been removed by user request. We keep state.recents tracking
+  // disabled and this function as a no-op so callers don't crash.
 }
 
 function renderMy(){
@@ -1429,7 +1425,7 @@ function toggleFavStream(url){
 function updateFavBtn(){if(!state.selected)return;$("favBtn").textContent=state.favSet.has(state.selected.stream)?"❤️":"🤍"}
 
 function toggleFavList(){state.favListOpen=!state.favListOpen;$("favList").classList.toggle("open",state.favListOpen)}
-function toggleRecentList(){state.recentListOpen=!state.recentListOpen;$("recentList").classList.toggle("open",state.recentListOpen)}
+function toggleRecentList(){/* removed */}
 
 function getDurLabel(url){
   const m=state.durMap[url];if(!m)return T("noDuration");
@@ -1487,7 +1483,6 @@ function playChannel(ch){
   $("spinner").classList.remove("on");
   $("qualWrap").classList.remove("vis");
   updateFavBtn();updateDurDisplay();
-  pushRecent(ch.stream);renderRecents();
   loadStream(ch);
 }
 
