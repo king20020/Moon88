@@ -318,10 +318,46 @@ body.day-mode .lt{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff);-web
 .sort-btn{background:var(--s2);border:1px solid var(--b);color:var(--tm);padding:3px 8px;border-radius:6px;font-family:var(--fd);font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap}
 .sort-btn.on{background:rgba(0,210,255,.1);border-color:var(--cyd);color:var(--cy)}
 
+/* ── COUNTRIES HUB ── */
+.cs-page{}
+.cs-hdr{padding:14px 4px 10px;text-align:center}
+.cs-title{font-family:var(--fd);font-size:clamp(18px,5vw,26px);font-weight:800;letter-spacing:1px;background:linear-gradient(90deg,#fff,var(--cy),var(--bl));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.day-mode .cs-title{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff);-webkit-background-clip:text;background-clip:text}
+.cs-sub{font-family:var(--fb);font-size:13px;color:var(--tm);margin-top:4px}
+.cs-group-lbl{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--cy);letter-spacing:.8px;margin:18px 6px 8px;padding-bottom:4px;border-bottom:1px solid var(--b)}
+.country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:9px}
+.country-tile{background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:14px 6px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .15s ease,background .15s ease,border-color .15s ease;contain:content;content-visibility:auto;contain-intrinsic-size:108px 110px}
+.country-tile:hover{background:var(--s3);border-color:var(--bb);transform:translateY(-2px)}
+.country-tile:active{transform:scale(.95)}
+.country-tile.loading{opacity:.7}
+.country-tile.empty{opacity:.55}
+.ct-flag{font-size:34px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+.ct-name{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--tx);letter-spacing:.3px;text-align:center;line-height:1.2;min-height:1.2em;word-break:break-word}
+.ct-count{font-family:var(--fd);font-size:10px;font-weight:700;color:var(--cy);background:rgba(0,210,255,.1);padding:2px 7px;border-radius:7px;letter-spacing:.5px}
+.country-tile.empty .ct-count{color:var(--tm);background:rgba(255,255,255,.04)}
+
+/* ── COUNTRY DETAIL PAGE ── */
+.cl-page{}
+.country-page-hdr{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--sur);border:1px solid var(--b);border-radius:14px;margin-bottom:11px;flex-wrap:wrap}
+.cph-back{background:rgba(0,210,255,.07);border:1px solid rgba(0,210,255,.22);color:var(--cy);padding:7px 12px;border-radius:100px;font-family:var(--fd);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.4px;flex-shrink:0}
+.cph-flag{font-size:32px;line-height:1;flex-shrink:0}
+.cph-info{min-width:0;flex:1}
+.cph-title{font-family:var(--fd);font-size:17px;font-weight:800;color:var(--tx);letter-spacing:.4px}
+.cph-sub{font-family:var(--fb);font-size:11px;color:var(--tm);margin-top:1px}
+.cph-search{flex:1 1 200px;display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--b);border-radius:10px;padding:6px 10px;min-width:140px}
+.cph-search input{flex:1;background:none;border:none;color:var(--tx);font-family:var(--fb);font-size:13px;outline:none;min-width:0}
+.cph-empty{padding:32px 16px;text-align:center;color:var(--tm);font-family:var(--fd);font-size:13px;background:var(--sur);border:1px dashed var(--b);border-radius:14px}
+.cph-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px;padding:2px 0}
+.cph-list .chi{height:auto;min-height:60px}
+
 @media(max-width:560px){
   .app{padding:9px 8px calc(44px + var(--safe-b))}
   .ftr{flex-direction:column;align-items:flex-start}
   .fa{justify-content:flex-start}
+  .country-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+  .ct-flag{font-size:30px}
+  .cph-list{grid-template-columns:1fr 1fr;gap:6px}
+  .cph-search{flex-basis:100%;order:99}
 }
 </style>
 </head>
@@ -428,6 +464,7 @@ body.day-mode .lt{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff);-web
 
 <div class="nav-tabs">
   <button class="ntb on" id="tab-watch" data-act="set-page" data-page="watch">📺 <span data-t="channels"></span></button>
+  <button class="ntb" id="tab-countries" data-act="set-page" data-page="countries">🌍 <span data-t="countriesNav"></span></button>
   <button class="ntb" id="tab-support" data-act="set-page" data-page="support">❤️ <span data-t="support"></span></button>
 </div>
 
@@ -585,6 +622,35 @@ body.day-mode .lt{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff);-web
 </div>
 </div>
 
+<!-- COUNTRIES HUB PAGE -->
+<div id="page-countries" style="display:none" class="cs-page">
+  <div class="cs-hdr">
+    <div class="cs-title">🌍 <span data-t="countriesTitle"></span></div>
+    <div class="cs-sub" data-t="countriesSub"></div>
+  </div>
+  <div class="cs-group-lbl" data-t="packsRegion"></div>
+  <div class="country-grid" id="countriesRegionGrid"></div>
+  <div class="cs-group-lbl" data-t="packsCategory"></div>
+  <div class="country-grid" id="countriesCatGrid"></div>
+</div>
+
+<!-- COUNTRY DETAIL PAGE -->
+<div id="page-country-list" style="display:none" class="cl-page">
+  <div class="country-page-hdr">
+    <button class="cph-back" data-act="open-countries">← <span data-t="back"></span></button>
+    <div class="cph-flag" id="cphFlag">🌍</div>
+    <div class="cph-info">
+      <div class="cph-title" id="cphTitle"></div>
+      <div class="cph-sub" id="cphSub"></div>
+    </div>
+    <div class="cph-search">
+      <span>🔍</span>
+      <input id="cphSearch" data-ph="search"/>
+    </div>
+  </div>
+  <div class="cph-list" id="cphList"></div>
+</div>
+
 <!-- SUPPORT PAGE -->
 <div id="page-support" style="display:none" class="sup-page">
   <button class="bback" data-act="set-page" data-page="watch">← <span data-t="back"></span></button>
@@ -640,9 +706,9 @@ body.day-mode .lt{background:linear-gradient(90deg,#0d1b2a,#005db8,#0070ff);-web
    TRANSLATIONS
    ────────────────────────────────────────────────────────────── */
 const LANGS={
-ku:{dir:"rtl",appSub:"پلاتفۆرمی پەخشی ڕاستەوخۆ",speed:"خێرایی",quality:"کوالیتی",status:"دۆخ",statusVal:"باشترکراو",channels:"کەناڵەکان",search:"گەڕان...",allCat:"هەموو",noChannels:"کەناڵ نەدۆزرایەوە",addChannel:"زیادکردنی کەناڵ",pasteList:"کۆدی کەناڵ بکولێنە (name;url یان M3U)",pastePh:"kurdistan-tv;http://...\nkurdmax;http://...",addBtn:"زیادبکە",streamUnavail:"ستریم بەردەست نییە",channelDead:"ئەم کەناڵە کار ناکات",selectOther:"کەناڵی دیکە هەڵبژێرە",devSupport:"پشتگیری گەشەپێدەر",devSub:"پشتگیریت کردنی دروستکەری وێبسایتەکە یارمەتیمان دەدات",telegram:"تێلێگرام",donateBtn:"پشتگیری — Ibrahim King",donateClose:"داخستن",donateModalTitle:"پشتگیری گەشەپێدەر",donateModalSub:"بۆ پشتگیری بە FastPay",copyNum:"کۆپیکردنی ژمارە",copied:"کۆپیکرا ✓",fastpayLabel:"FastPay",recipient:"وەرگر",phoneNum:"ژمارەی مۆبایل",sendMoney:"پارە بنێرە",transfer:"گواستنەوە",back:"گەرانەوە",nowWatching:"ئێستا تەماشادەکەیت",support:"پشتگیری",cardS1T:"سەرورێکخستنی سێرڤەر",cardS1B:"پشتگیریت یارمەتیمان دەدات کەناڵەکان بەردەوام بێن.",cardS2T:"کەناڵی زیاتر",cardS2B:"بە پشتگیریت دەتوانین کەناڵی زیاتر زیادبکەین.",cardS3T:"ئاپدەیت بەردەوام",cardS3B:"پلاتفۆرمەکە بەردەوام باشتردەکرێت.",cardS4T:"پشتگیری بەکارهێنەران",cardS4B:"تیمی پشتگیری بەردەوام ئامادەیە.",shareTitle:"شێرکردنی کەناڵ",shareBtn:"📤 شێر",copyUrl:"کۆپیکردنی لینک",favChannels:"دڵخوازەکان",myChannels:"کەناڵەکانم",clearAll:"سڕینەوە",enhance:"باشترکردن",chExists:"کەناڵەکە بوونی هەیە ✓",sortBy:"ڕیزکردن:",replaced:"گۆڕدرا ✓",chSize:"قەبارەی کەناڵ",setDuration:"دانانی ماوەی کەناڵ",minutes:"خولەک",min:"خ",hour:"کاتژمێر",hours:"کاتژمێر",clearDur:"سڕینەوەی ماوە",noDuration:"دانانی ماوە",save:"پاشەکەوت",deadCh:"کار ناکات",recentChannels:"کۆتا تەماشاکراو",morePacksTitle:"پاکێجی زیاتری کەناڵ",morePacksSub:"کلیک بکە بۆ بارکردنی هەرێم/کاتیگۆری",packsRegion:"وڵاتان",packsCategory:"کاتیگۆری",loadAllArab:"هەموو عەرەبی",loadPopular:"بەناوبانگەکان",clearCache:"پاککردنەوەی کاش",loading:"بارکردن...",retry:"دووبارە",settings:"ڕێکخستنەکان",dataSaver:"کەمکردنی داتا",dataSaverDesc:"نزمترین کوالیتی، وزە کەمتر",autoplay:"خۆکار لێدان",autoplayDesc:"کاتێک کەناڵ هەڵدەبژێریت",wakeLock:"شاشە کوێر نەبێت",wakeLockDesc:"کاتێک تەماشا دەکەی",muteWhenHidden:"کوێرکردن کاتێک تاب لاوەیە",muteWhenHiddenDesc:"کاتێک تاب پشتە، دەنگ کوێر دەکات",netBannerSlow:"تۆڕت هێواشە — کوالیتی نزم دانراوە بۆ پاراستنی وزە",netBannerSaveData:"دۆخی پاراستنی داتا چالاکە — کوالیتی نزم"},
-ar:{dir:"rtl",appSub:"منصة البث المباشر",speed:"السرعة",quality:"الجودة",status:"الحالة",statusVal:"مُحسَّن",channels:"القنوات",search:"بحث...",allCat:"الكل",noChannels:"لا توجد قنوات",addChannel:"إضافة قناة",pasteList:"الصق كود القنوات (name;url) أو M3U",pastePh:"channel;http://...",addBtn:"إضافة",streamUnavail:"البث غير متاح",channelDead:"هذه القناة لا تعمل",selectOther:"اختر قناة أخرى",devSupport:"دعم مطوّر الموقع",devSub:"دعمك يساعدنا على تطوير المنصة",telegram:"تيليغرام",donateBtn:"دعم — Ibrahim King",donateClose:"إغلاق",donateModalTitle:"دعم مطوّر الموقع",donateModalSub:"لدعم المطوّر عبر FastPay",copyNum:"نسخ الرقم",copied:"تم النسخ ✓",fastpayLabel:"FastPay",recipient:"المستلم",phoneNum:"رقم الهاتف",sendMoney:"إرسال الأموال",transfer:"تحويل",back:"رجوع",nowWatching:"تشاهد الآن",support:"الدعم",cardS1T:"صيانة الخوادم",cardS1B:"دعمك يحافظ على القنوات.",cardS2T:"المزيد من القنوات",cardS2B:"بدعمك نضيف المزيد.",cardS3T:"تحديثات مستمرة",cardS3B:"يتم تحديث المنصة باستمرار.",cardS4T:"دعم المستخدمين",cardS4B:"فريق الدعم دائمًا جاهز.",shareTitle:"مشاركة القناة",shareBtn:"📤 مشاركة",copyUrl:"نسخ الرابط",favChannels:"المفضلة",myChannels:"قنواتي",clearAll:"مسح الكل",enhance:"تحسين",chExists:"القناة موجودة ✓",sortBy:"ترتيب:",replaced:"تم الاستبدال ✓",chSize:"حجم القناة",setDuration:"تعيين مدة القناة",minutes:"دقيقة",min:"د",hour:"ساعة",hours:"ساعات",clearDur:"مسح المدة",noDuration:"تعيين مدة",save:"حفظ",deadCh:"لا يعمل",recentChannels:"شوهدت مؤخراً",morePacksTitle:"حزم قنوات إضافية",morePacksSub:"اضغط لتحميل منطقة/فئة",packsRegion:"الدول",packsCategory:"الفئات",loadAllArab:"كل العربية",loadPopular:"الشائعة",clearCache:"مسح الكاش",loading:"تحميل...",retry:"إعادة",settings:"الإعدادات",dataSaver:"توفير البيانات",dataSaverDesc:"جودة منخفضة، طاقة أقل",autoplay:"تشغيل تلقائي",autoplayDesc:"عند اختيار قناة",wakeLock:"إبقاء الشاشة مضاءة",wakeLockDesc:"أثناء المشاهدة",muteWhenHidden:"كتم عند إخفاء التبويب",muteWhenHiddenDesc:"يكتم الصوت تلقائيًا",netBannerSlow:"شبكتك بطيئة — تم تخفيض الجودة لتوفير الطاقة",netBannerSaveData:"وضع توفير البيانات مفعل — جودة منخفضة"},
-en:{dir:"ltr",appSub:"Live Broadcasting Platform",speed:"Speed",quality:"Quality",status:"Status",statusVal:"Optimized",channels:"Channels",search:"Search...",allCat:"All",noChannels:"No channels found",addChannel:"Add Channel",pasteList:"Paste channel list (name;url) or M3U",pastePh:"channel-name;http://...\nchannel2;http://...",addBtn:"Add",streamUnavail:"Stream unavailable",channelDead:"This channel is not working",selectOther:"Select another channel",devSupport:"Support the Developer",devSub:"Your support keeps the platform running",telegram:"Telegram",donateBtn:"Support — Ibrahim King",donateClose:"Close",donateModalTitle:"Support the Developer",donateModalSub:"Support via FastPay",copyNum:"Copy Number",copied:"Copied ✓",fastpayLabel:"FastPay",recipient:"Recipient",phoneNum:"Phone Number",sendMoney:"Send Money",transfer:"Transfer",back:"Go Back",nowWatching:"Now Watching",support:"Support",cardS1T:"Server Maintenance",cardS1B:"Your support keeps channels running.",cardS2T:"More Channels",cardS2B:"With your support we can add more.",cardS3T:"Continuous Updates",cardS3B:"The platform is continuously updated.",cardS4T:"User Support",cardS4B:"Support team is always ready.",shareTitle:"Share Channel",shareBtn:"📤 Share",copyUrl:"Copy Link",favChannels:"Favourites",myChannels:"My Channels",clearAll:"Clear",enhance:"Enhance",chExists:"Channel exists ✓",sortBy:"Sort:",replaced:"Replaced ✓",chSize:"Channel size",setDuration:"Set Duration",minutes:"minutes",min:"min",hour:"hour",hours:"hours",clearDur:"Clear Duration",noDuration:"Set duration",save:"Save",deadCh:"Not working",recentChannels:"Recently Watched",morePacksTitle:"More Channel Packs",morePacksSub:"Tap to load region/category",packsRegion:"Regions",packsCategory:"Categories",loadAllArab:"All Arabic",loadPopular:"Popular",clearCache:"Clear Cache",loading:"Loading...",retry:"Retry",settings:"Settings",dataSaver:"Data Saver",dataSaverDesc:"Low quality, save battery",autoplay:"Autoplay",autoplayDesc:"When you pick a channel",wakeLock:"Keep screen awake",wakeLockDesc:"While watching",muteWhenHidden:"Mute when tab hidden",muteWhenHiddenDesc:"Auto mute on background",netBannerSlow:"Slow network — quality reduced to save battery",netBannerSaveData:"Data Saver active — low quality"}
+ku:{dir:"rtl",appSub:"پلاتفۆرمی پەخشی ڕاستەوخۆ",speed:"خێرایی",quality:"کوالیتی",status:"دۆخ",statusVal:"باشترکراو",channels:"کەناڵەکان",search:"گەڕان...",allCat:"هەموو",noChannels:"کەناڵ نەدۆزرایەوە",addChannel:"زیادکردنی کەناڵ",pasteList:"کۆدی کەناڵ بکولێنە (name;url یان M3U)",pastePh:"kurdistan-tv;http://...\nkurdmax;http://...",addBtn:"زیادبکە",streamUnavail:"ستریم بەردەست نییە",channelDead:"ئەم کەناڵە کار ناکات",selectOther:"کەناڵی دیکە هەڵبژێرە",devSupport:"پشتگیری گەشەپێدەر",devSub:"پشتگیریت کردنی دروستکەری وێبسایتەکە یارمەتیمان دەدات",telegram:"تێلێگرام",donateBtn:"پشتگیری — Ibrahim King",donateClose:"داخستن",donateModalTitle:"پشتگیری گەشەپێدەر",donateModalSub:"بۆ پشتگیری بە FastPay",copyNum:"کۆپیکردنی ژمارە",copied:"کۆپیکرا ✓",fastpayLabel:"FastPay",recipient:"وەرگر",phoneNum:"ژمارەی مۆبایل",sendMoney:"پارە بنێرە",transfer:"گواستنەوە",back:"گەرانەوە",nowWatching:"ئێستا تەماشادەکەیت",support:"پشتگیری",cardS1T:"سەرورێکخستنی سێرڤەر",cardS1B:"پشتگیریت یارمەتیمان دەدات کەناڵەکان بەردەوام بێن.",cardS2T:"کەناڵی زیاتر",cardS2B:"بە پشتگیریت دەتوانین کەناڵی زیاتر زیادبکەین.",cardS3T:"ئاپدەیت بەردەوام",cardS3B:"پلاتفۆرمەکە بەردەوام باشتردەکرێت.",cardS4T:"پشتگیری بەکارهێنەران",cardS4B:"تیمی پشتگیری بەردەوام ئامادەیە.",shareTitle:"شێرکردنی کەناڵ",shareBtn:"📤 شێر",copyUrl:"کۆپیکردنی لینک",favChannels:"دڵخوازەکان",myChannels:"کەناڵەکانم",clearAll:"سڕینەوە",enhance:"باشترکردن",chExists:"کەناڵەکە بوونی هەیە ✓",sortBy:"ڕیزکردن:",replaced:"گۆڕدرا ✓",chSize:"قەبارەی کەناڵ",setDuration:"دانانی ماوەی کەناڵ",minutes:"خولەک",min:"خ",hour:"کاتژمێر",hours:"کاتژمێر",clearDur:"سڕینەوەی ماوە",noDuration:"دانانی ماوە",save:"پاشەکەوت",deadCh:"کار ناکات",recentChannels:"کۆتا تەماشاکراو",morePacksTitle:"پاکێجی زیاتری کەناڵ",morePacksSub:"کلیک بکە بۆ بارکردنی هەرێم/کاتیگۆری",packsRegion:"وڵاتان",countriesNav:"وڵاتان",countriesTitle:"هەموو وڵاتانی جیهان",countriesSub:"پەنجە لە وڵاتێک بدە بۆ بینینی هەموو کەناڵەکانی ئەو وڵاتە",packsCategory:"کاتیگۆری",loadAllArab:"هەموو عەرەبی",loadPopular:"بەناوبانگەکان",clearCache:"پاککردنەوەی کاش",loading:"بارکردن...",retry:"دووبارە",settings:"ڕێکخستنەکان",dataSaver:"کەمکردنی داتا",dataSaverDesc:"نزمترین کوالیتی، وزە کەمتر",autoplay:"خۆکار لێدان",autoplayDesc:"کاتێک کەناڵ هەڵدەبژێریت",wakeLock:"شاشە کوێر نەبێت",wakeLockDesc:"کاتێک تەماشا دەکەی",muteWhenHidden:"کوێرکردن کاتێک تاب لاوەیە",muteWhenHiddenDesc:"کاتێک تاب پشتە، دەنگ کوێر دەکات",netBannerSlow:"تۆڕت هێواشە — کوالیتی نزم دانراوە بۆ پاراستنی وزە",netBannerSaveData:"دۆخی پاراستنی داتا چالاکە — کوالیتی نزم"},
+ar:{dir:"rtl",appSub:"منصة البث المباشر",speed:"السرعة",quality:"الجودة",status:"الحالة",statusVal:"مُحسَّن",channels:"القنوات",search:"بحث...",allCat:"الكل",noChannels:"لا توجد قنوات",addChannel:"إضافة قناة",pasteList:"الصق كود القنوات (name;url) أو M3U",pastePh:"channel;http://...",addBtn:"إضافة",streamUnavail:"البث غير متاح",channelDead:"هذه القناة لا تعمل",selectOther:"اختر قناة أخرى",devSupport:"دعم مطوّر الموقع",devSub:"دعمك يساعدنا على تطوير المنصة",telegram:"تيليغرام",donateBtn:"دعم — Ibrahim King",donateClose:"إغلاق",donateModalTitle:"دعم مطوّر الموقع",donateModalSub:"لدعم المطوّر عبر FastPay",copyNum:"نسخ الرقم",copied:"تم النسخ ✓",fastpayLabel:"FastPay",recipient:"المستلم",phoneNum:"رقم الهاتف",sendMoney:"إرسال الأموال",transfer:"تحويل",back:"رجوع",nowWatching:"تشاهد الآن",support:"الدعم",cardS1T:"صيانة الخوادم",cardS1B:"دعمك يحافظ على القنوات.",cardS2T:"المزيد من القنوات",cardS2B:"بدعمك نضيف المزيد.",cardS3T:"تحديثات مستمرة",cardS3B:"يتم تحديث المنصة باستمرار.",cardS4T:"دعم المستخدمين",cardS4B:"فريق الدعم دائمًا جاهز.",shareTitle:"مشاركة القناة",shareBtn:"📤 مشاركة",copyUrl:"نسخ الرابط",favChannels:"المفضلة",myChannels:"قنواتي",clearAll:"مسح الكل",enhance:"تحسين",chExists:"القناة موجودة ✓",sortBy:"ترتيب:",replaced:"تم الاستبدال ✓",chSize:"حجم القناة",setDuration:"تعيين مدة القناة",minutes:"دقيقة",min:"د",hour:"ساعة",hours:"ساعات",clearDur:"مسح المدة",noDuration:"تعيين مدة",save:"حفظ",deadCh:"لا يعمل",recentChannels:"شوهدت مؤخراً",morePacksTitle:"حزم قنوات إضافية",morePacksSub:"اضغط لتحميل منطقة/فئة",packsRegion:"الدول",countriesNav:"الدول",countriesTitle:"كل دول العالم",countriesSub:"اضغط على دولة لرؤية كل قنواتها",packsCategory:"الفئات",loadAllArab:"كل العربية",loadPopular:"الشائعة",clearCache:"مسح الكاش",loading:"تحميل...",retry:"إعادة",settings:"الإعدادات",dataSaver:"توفير البيانات",dataSaverDesc:"جودة منخفضة، طاقة أقل",autoplay:"تشغيل تلقائي",autoplayDesc:"عند اختيار قناة",wakeLock:"إبقاء الشاشة مضاءة",wakeLockDesc:"أثناء المشاهدة",muteWhenHidden:"كتم عند إخفاء التبويب",muteWhenHiddenDesc:"يكتم الصوت تلقائيًا",netBannerSlow:"شبكتك بطيئة — تم تخفيض الجودة لتوفير الطاقة",netBannerSaveData:"وضع توفير البيانات مفعل — جودة منخفضة"},
+en:{dir:"ltr",appSub:"Live Broadcasting Platform",speed:"Speed",quality:"Quality",status:"Status",statusVal:"Optimized",channels:"Channels",search:"Search...",allCat:"All",noChannels:"No channels found",addChannel:"Add Channel",pasteList:"Paste channel list (name;url) or M3U",pastePh:"channel-name;http://...\nchannel2;http://...",addBtn:"Add",streamUnavail:"Stream unavailable",channelDead:"This channel is not working",selectOther:"Select another channel",devSupport:"Support the Developer",devSub:"Your support keeps the platform running",telegram:"Telegram",donateBtn:"Support — Ibrahim King",donateClose:"Close",donateModalTitle:"Support the Developer",donateModalSub:"Support via FastPay",copyNum:"Copy Number",copied:"Copied ✓",fastpayLabel:"FastPay",recipient:"Recipient",phoneNum:"Phone Number",sendMoney:"Send Money",transfer:"Transfer",back:"Go Back",nowWatching:"Now Watching",support:"Support",cardS1T:"Server Maintenance",cardS1B:"Your support keeps channels running.",cardS2T:"More Channels",cardS2B:"With your support we can add more.",cardS3T:"Continuous Updates",cardS3B:"The platform is continuously updated.",cardS4T:"User Support",cardS4B:"Support team is always ready.",shareTitle:"Share Channel",shareBtn:"📤 Share",copyUrl:"Copy Link",favChannels:"Favourites",myChannels:"My Channels",clearAll:"Clear",enhance:"Enhance",chExists:"Channel exists ✓",sortBy:"Sort:",replaced:"Replaced ✓",chSize:"Channel size",setDuration:"Set Duration",minutes:"minutes",min:"min",hour:"hour",hours:"hours",clearDur:"Clear Duration",noDuration:"Set duration",save:"Save",deadCh:"Not working",recentChannels:"Recently Watched",morePacksTitle:"More Channel Packs",morePacksSub:"Tap to load region/category",packsRegion:"Regions",countriesNav:"Countries",countriesTitle:"All World Countries",countriesSub:"Tap a country to see all its channels",packsCategory:"Categories",loadAllArab:"All Arabic",loadPopular:"Popular",clearCache:"Clear Cache",loading:"Loading...",retry:"Retry",settings:"Settings",dataSaver:"Data Saver",dataSaverDesc:"Low quality, save battery",autoplay:"Autoplay",autoplayDesc:"When you pick a channel",wakeLock:"Keep screen awake",wakeLockDesc:"While watching",muteWhenHidden:"Mute when tab hidden",muteWhenHiddenDesc:"Auto mute on background",netBannerSlow:"Slow network — quality reduced to save battery",netBannerSaveData:"Data Saver active — low quality"}
 };
 
 const FB="https://cdn-icons-png.flaticon.com/512/149/149071.png";
@@ -796,6 +862,9 @@ const state = {
   chSize:72,
   durEditTarget:null,
   recents:[],          // array of urls, most-recent first
+  page:"watch",        // "watch" | "countries" | "country-list" | "support"
+  activeCountry:null,  // pack key when page === "country-list"
+  _suppressHash:false, // re-entry guard for hash <-> setPage sync
   packsLoaded:new Set(),
   packsLoading:new Set(),
   packsFailed:new Set(),
@@ -1022,15 +1091,18 @@ async function fetchM3U(url,timeoutMs=12000){
   return null;
 }
 
-function mergeChannels(newOnes){
+function mergeChannels(newOnes,packKey){
   let added=0;
   for(const ch of newOnes){
     if(!ch||!ch.stream)continue;
     if(state.channelByUrl.has(ch.stream))continue;
+    if(packKey&&!ch.pack)ch.pack=packKey;
     state.channels.push(ch);
     state.channelByUrl.set(ch.stream,ch);
     added++;
   }
+  // Channels in the live country page need to reflect new arrivals.
+  if(state.page==="country-list"&&state.activeCountry===packKey)renderCountryList();
   return added;
 }
 
@@ -1045,26 +1117,26 @@ async function loadPack(key,{quiet}={quiet:false}){
   // Try cache first
   const cached=packCacheGet(key);
   if(cached){
-    const n=mergeChannels(cached.channels);
+    const n=mergeChannels(cached.channels,key);
     state.packCounts[key]=cached.channels.length;
     state.packsLoaded.add(key);state.packsLoading.delete(key);
-    renderPacks();renderChannels();renderCats();
+    renderPacks();renderChannels();renderCats();renderCountriesPage();
     if(!quiet)showToast("✓ "+p.label+" — "+(cached.channels.length)+" "+T("channels"));
     return n;
   }
   const txt=await fetchM3U(p.url);
   state.packsLoading.delete(key);
   if(!txt){
-    state.packsFailed.add(key);renderPacks();
+    state.packsFailed.add(key);renderPacks();renderCountriesPage();
     if(!quiet)showToast("⚠ "+p.label+" — failed");
     return 0;
   }
   const parsed=parseM3U(txt);
   packCacheSet(key,parsed);
-  const n=mergeChannels(parsed);
+  const n=mergeChannels(parsed,key);
   state.packCounts[key]=parsed.length;
   state.packsLoaded.add(key);
-  renderPacks();renderChannels();renderCats();
+  renderPacks();renderChannels();renderCats();renderCountriesPage();
   if(!quiet)showToast("✓ "+p.label+" — "+parsed.length+" "+T("channels"));
   return n;
 }
@@ -1122,10 +1194,102 @@ function applyLang(){
 function setLang(l){state.lang=l;prefsSave();applyLang()}
 
 function setPage(p){
+  state.page=p;
   $("page-watch").style.display=p==="watch"?"block":"none";
+  $("page-countries").style.display=p==="countries"?"block":"none";
+  $("page-country-list").style.display=p==="country-list"?"block":"none";
   $("page-support").style.display=p==="support"?"block":"none";
+  // Top nav highlights watch / countries / support. Country-list keeps the
+  // countries tab lit so the user knows where they came from.
   $("tab-watch").classList.toggle("on",p==="watch");
+  $("tab-countries").classList.toggle("on",p==="countries"||p==="country-list");
   $("tab-support").classList.toggle("on",p==="support");
+  if(p==="countries")renderCountriesPage();
+  if(p==="country-list")renderCountryList();
+  // Update hash for natural browser back-button on mobile.
+  const want=p==="watch"?"":p==="country-list"?("#country="+(state.activeCountry||"")):("#"+p);
+  if(location.hash!==want){
+    state._suppressHash=true;
+    if(want)location.hash=want;else history.replaceState(null,"",location.pathname+location.search);
+    state._suppressHash=false;
+  }
+  // Top of page is what the user expects when switching tabs.
+  window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"});
+}
+
+function routeFromHash(){
+  if(state._suppressHash)return;
+  const h=(location.hash||"").replace(/^#/,"");
+  if(!h){setPage("watch");return}
+  if(h==="countries"){setPage("countries");return}
+  if(h==="support"){setPage("support");return}
+  const m=h.match(/^country=(.+)$/);
+  if(m&&PACKS[m[1]]){openCountry(m[1]);return}
+  setPage("watch");
+}
+
+/* ──────────────────────────────────────────────────────────────
+   COUNTRIES PAGE
+   ────────────────────────────────────────────────────────────── */
+function extractFlag(label){
+  // Country flag (two regional-indicator letters) OR any other pictograph.
+  const m=(label||"").match(/[\u{1F1E6}-\u{1F1FF}][\u{1F1E6}-\u{1F1FF}]|[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u);
+  return m?m[0]:"🌍";
+}
+function extractName(label){
+  return (label||"").replace(/[\u{1F1E6}-\u{1F1FF}][\u{1F1E6}-\u{1F1FF}]|[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,"").trim();
+}
+
+function renderCountriesPage(){
+  const rGrid=$("countriesRegionGrid");const cGrid=$("countriesCatGrid");
+  if(!rGrid||!cGrid)return;
+  const tileFor=(key)=>{
+    const p=PACKS[key];if(!p)return"";
+    const cnt=state.packCounts[key]||0;
+    const isLoading=state.packsLoading.has(key);
+    const isLoaded=state.packsLoaded.has(key);
+    const flag=extractFlag(p.label);
+    const nameOnly=extractName(p.label)||key;
+    const empty=isLoaded&&cnt===0?"empty":"";
+    const cntTxt=isLoading?"…":(cnt+" "+T("channels"));
+    return `<button class="country-tile ${isLoading?"loading":""} ${empty}" data-act="open-country" data-key="${esc(key)}">
+      <div class="ct-flag">${esc(flag)}</div>
+      <div class="ct-name">${esc(nameOnly)}</div>
+      <div class="ct-count">${esc(cntTxt)}</div>
+    </button>`;
+  };
+  const regKeys=Object.keys(PACKS).filter(k=>PACKS[k].group==="region");
+  const catKeys=Object.keys(PACKS).filter(k=>PACKS[k].group==="cat");
+  rGrid.innerHTML=regKeys.map(tileFor).join("");
+  cGrid.innerHTML=catKeys.map(tileFor).join("");
+}
+
+async function openCountry(key){
+  const p=PACKS[key];if(!p)return;
+  state.activeCountry=key;
+  setPage("country-list");
+  // If pack hasn't loaded yet, kick it off; renderCountryList will rerun via
+  // mergeChannels()'s page-aware refresh when data arrives.
+  if(!state.packsLoaded.has(key)&&!state.packsLoading.has(key)){
+    loadPack(key,{quiet:true});
+  }
+}
+
+function renderCountryList(){
+  const key=state.activeCountry;if(!key)return;
+  const p=PACKS[key];if(!p)return;
+  $("cphFlag").textContent=extractFlag(p.label);
+  $("cphTitle").textContent=extractName(p.label)||key;
+  const all=state.channels.filter(c=>c.pack===key);
+  const q=(($("cphSearch")&&$("cphSearch").value)||"").toLowerCase().trim();
+  const list=q?all.filter(c=>c.name.toLowerCase().includes(q)||(c.category||"").toLowerCase().includes(q)):all;
+  const isLoading=state.packsLoading.has(key);
+  $("cphSub").textContent=isLoading&&!all.length?T("loading"):(list.length+" "+T("channels"));
+  if(!list.length){
+    $("cphList").innerHTML=`<div class="cph-empty">${esc(isLoading?T("loading"):T("noChannels"))}</div>`;
+    return;
+  }
+  $("cphList").innerHTML=list.map(c=>chiHTML(c)).join("");
 }
 
 function toggleTheme(){
@@ -1303,7 +1467,11 @@ function selectChByUrl(url){
   const ch=state.channelByUrl.get(url);
   if(!ch)return;
   // No dead-channel guard: every channel is clickable, user retries freely.
-  state.selected=ch;playChannel(ch);renderAll();
+  state.selected=ch;
+  // Picking a channel from the countries/country-list view jumps back to the
+  // watch page so the player is visible immediately.
+  if(state.page!=="watch")setPage("watch");
+  playChannel(ch);renderAll();
 }
 
 function playChannel(ch){
@@ -1587,6 +1755,8 @@ function handleClick(e){
     case "add-channels":addChannels();break;
     case "clear-my":   clearMyChannels();break;
     case "load-pack":  loadPack(el.dataset.key);break;
+    case "open-country":openCountry(el.dataset.key);break;
+    case "open-countries":setPage("countries");break;
     case "load-popular":loadMany(POPULAR_KEYS);break;
     case "load-all-arab":loadMany(ARAB_KEYS);break;
     case "clear-cache":packCacheClearAll();showToast("🗑 cache cleared");break;
@@ -1631,6 +1801,11 @@ function bindEvents(){
 
   // Search debounced
   $("searchInput").addEventListener("input",debounce(()=>renderChannels(),180));
+  // Country-page search (separate debounce, scoped to one country at a time)
+  const cphS=$("cphSearch");
+  if(cphS)cphS.addEventListener("input",debounce(()=>renderCountryList(),180));
+  // Hash routing so the browser back-button returns to the countries hub.
+  window.addEventListener("hashchange",routeFromHash);
 
   // Size slider
   $("sizeSlider").addEventListener("input",e=>{state.chSize=parseInt(e.target.value);applySize();sizeSave()});
@@ -1702,7 +1877,7 @@ function bootChannels(){
   // Cached packs (instant)
   for(const k of Object.keys(PACKS)){
     const cached=packCacheGet(k);
-    if(cached){mergeChannels(cached.channels);state.packCounts[k]=cached.channels.length;state.packsLoaded.add(k)}
+    if(cached){mergeChannels(cached.channels,k);state.packCounts[k]=cached.channels.length;state.packsLoaded.add(k)}
   }
 }
 
@@ -1720,6 +1895,9 @@ function init(){
   bindEvents();
   setupNetInfo();setupBattery();setupVisibility();
   registerSW();
+
+  // Honour the initial #hash (deep links from a bookmarked country page work)
+  routeFromHash();
 
   // Auto-load packs after initial render (idle)
   rIdle(()=>{loadAutoPacks()},800);
